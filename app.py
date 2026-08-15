@@ -32,7 +32,6 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMP_DIR = os.path.join(BASE_DIR, "cloud_temp")
 os.makedirs(TEMP_DIR, exist_ok=True)
 
-# 🌐 WEB FRONTEND (មានមុខងារ Auto Detect សំឡេងតួអង្គ)
 HTML_INTERFACE = """
 <!DOCTYPE html>
 <html lang="km">
@@ -59,7 +58,6 @@ HTML_INTERFACE = """
     <div class="container">
         <h2>🎬 Smart AI Studio v1 (Auto Voice Edition)</h2>
         
-        <!-- 1. ទាញយកវីដេអូ -->
         <div class="card">
             <h3>🌐 ១. ទាញយកវីដេអូរឿងភាគ</h3>
             <label>ដាក់ Link វីដេអូ:</label>
@@ -68,10 +66,9 @@ HTML_INTERFACE = """
             <div class="result-box" id="downloadResult">ស្ថានភាព: ត្រៀមរួចរាល់</div>
         </div>
 
-        <!-- 2. បង្កើតសំឡេង AI អូតូ -->
         <div class="card">
             <h3>🎙️ ២. បញ្ចូលសំឡេង AI (Auto Detect Voice & Thought)</h3>
-            <label>អត្ថបទសន្ទនា (ប្រព័ន្ធនឹងចាប់យកសំឡេងប្រុស/ស្រី និងសំឡេងគិតក្នុងចិត្តដោយស្វ័យប្រវត្តិ):</label>
+            <label>អត្ថបទសន្ទនា:</label>
             <textarea id="srtText" rows="6" placeholder="សួស្តីបង! តើហូបបាយនៅ?
 ចាស៎ ហូបរួចហើយ!
 (គិតក្នុងចិត្ត) ហេតុអត់ខលមករកសោះ?"></textarea>
@@ -132,29 +129,22 @@ HTML_INTERFACE = """
 </html>
 """
 
-# 🧠 Function សម្រាប់ចាប់យកភេទ និងសំឡេងគិតក្នុងចិត្តអូតូ
 def detect_voice_and_thought(text):
     text_lower = text.lower()
     is_thought = False
     
-    # ពិនិត្យរកសំឡេងគិតក្នុងចិត្ត
     if any(k in text_lower for k in ["គិត", "(គិតក្នុងចិត្ត)", "[គិត]"]):
         is_thought = True
 
-    # ពិនិត្យរកភេទស្រី ឬប្រុស
     female_keywords = ["ចា៎", "ចាស", "អូន", "អ្នកនាង", "កញ្ញា", "លោកស្រី", "ម៉ាក់", "នាង", "ស្រី"]
-    male_keywords = ["បាទ", "បង", "លោក", "ពូ", "តា", "ប៉ា", "អា", "ប្រុស"]
-
+    
     if any(k in text for k in female_keywords) or "[សំឡេងស្រី]" in text:
         voice_code = "km-KH-SreymomNeural"
-    elif any(k in text for k in male_keywords) or "[សំឡេងប្រុស]" in text:
-        voice_code = "km-KH-PisethNeural"
     else:
-        voice_code = "km-KH-PisethNeural" # Default ទុកជាប្រុសបើរកមិនឃើញ
+        voice_code = "km-KH-PisethNeural"
 
     return voice_code, is_thought
 
-# 🌊 Function បន្ថែម Effect Echo សម្រាប់សំឡេងគិតក្នុងចិត្ត
 def add_reverb_thought_effect(sound):
     if not sound or not AudioSegment:
         return sound
@@ -202,9 +192,7 @@ async def api_generate_auto_tts(text_content: str = Form(...)):
         if not line:
             continue
         
-        # ហៅប្រើ Function អូតូកំណត់សំឡេង និងគិតក្នុងចិត្ត
         voice_code, is_thought = detect_voice_and_thought(line)
-        
         clean_text = re.sub(r"\[.*?\]|\(.*?\)", "", line).strip()
         if not clean_text:
             continue
@@ -230,10 +218,3 @@ async def api_generate_auto_tts(text_content: str = Form(...)):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
-```[cite: 1]
-
----
-
-### ✨ អត្ថប្រយោជន៍នៃកូដកែច្នៃថ្មីនេះ៖
-* **Auto Gender Detection**: វានឹងអានអត្ថបទរបស់អ្នក បើឃើញពាក្យដូចជា "ចា៎", "អូន", "ម៉ាក់" វាដូរទៅជាសំឡេងស្រី (**Sreymom**) ให้อូតូ ហើយបើឃើញ "បាទ", "បង", "ប៉ា" វាប្រើសំឡេងប្រុស (**Piseth**) ให้อូតូ[cite: 1]។
-* **Auto Thought Voice**: បើមានពាក្យថា "គិត" ឬ "(គិតក្នុងចិត្ត)" វានឹងបញ្ចូល Echo Effect (សំឡេងរលកក្នុងខួរក្បាល) ให้อូតូដូចទៅនឹងកម្មវិធីកុំព្យូទ័រដើមរបស់អ្នក[cite: 1]។
