@@ -5,32 +5,6 @@ python-multipart
 yt-dlp
 pydub
 ```[cite: 1]
-៣. **`Procfile`** (គ្មានนามสกุล .txt ទេ) ដោយសរសេរអត្ថបទនេះចូល[cite: 1]៖
-```text
-web: uvicorn app:app --host 0.0.0.0 --port $PORT
-```[cite: 1]
 
----
-
-### ជំហានទី ២៖ Upload ហ្វាលទៅកាន់ GitHub
-១. ចូលទៅកាន់វេបសាយ **[github.com](https://github.com)** រួចបង្កើត Repository ថ្មីមួយ (ឧទាហរណ៍ដាក់ឈ្មោះថា `smart-ai-studio`)[cite: 1]。
-២. ធ្វើការ Upload ហ្វាលទាំង ៣ (`app.py`, `requirements.txt`, `Procfile`) ដាក់ចូលទៅក្នុង Repository នោះ រួចចុច **Commit changes**[cite: 1]。
-
----
-
-### ជំហានទី ៣៖ ដំណើរការ Render លើវេបសាយ Render.com
-១. ចូលទៅកាន់ **[render.com](https://render.com)** ហើយ Login ចូលដោយប្រើប្រាស់ Account GitHub របស់អ្នក[cite: 1]。
-២. នៅលើផ្ទាំង Dashboard សូមចុចប៊ូតុង **New +** នៅជ្រុងខាងស្តាំខាងលើ រួចជ្រើសរើស **Web Service**[cite: 1]。
-៣. ស្វែងរក និងជ្រើសរើសយក Repository ឈ្មោះ **`smart-ai-studio`** របស់អ្នក (ចុច Connect)[cite: 1]。
-៤. បំពេញព័ត៌មានកំណត់ (Settings) ដូចខាងក្រោម៖
-* **Name**: ដាក់ឈ្មោះតាមចំណូលចិត្ត (ឧទាហរណ៍៖ `smart-ai-studio-app`)[cite: 1]
-* **Runtime**: ជ្រើសរើស `Python 3`[cite: 1]
-* **Build Command**: `pip install -r requirements.txt`[cite: 1]
-* **Start Command**: `uvicorn app:app --host 0.0.0.0 --port $PORT`[cite: 1]
-* **Instance Type**: ជ្រើសរើសយក **Free** ($0 / month)[cite: 1]
-៥. អូសចុះក្រោមរួចចុចប៊ូតុង **Create Web Service**[cite: 1]。
-
----
-
-### 🎉 ទទួលបាន Link ប្រើប្រាស់!
-រង់ចាំប្រហែល ២ ដល់ ៣ នាទី ឱ្យ Render ដំណើរការ Build កូដរបស់អ្នករហូតដល់ចេញសញ្ញាពណ៌បៃតង (**Live**)។ ពេលនោះ វានឹងផ្តល់ជូនអ្នកនូវ Link មួយ (ឧទាហរណ៍៖ `[https://smart-ai-studio-app.onrender.com](https://smart-ai-studio-app.onrender.com)`) ដែលអ្នកអាចយកទៅបើកលើ Browser របស់ទូរសព្ទដៃដើម្បីប្រើប្រាស់បានគ្រប់ទីកន្លែង[cite: 1]!
+៣. Save ហ្វាលនេះ ហើយ Commit / Push វាឡើងទៅកាន់ GitHub វិញ (ឬកែសម្រួលវាផ្ទាល់នៅលើ GitHub)[cite: 1]។
+៤. ត្រឡប់មកកាន់ Render Dashboard វិញ ហើយចុចប៊ូតុង **Manual Deploy** -> **Deploy latest commit** ជាការស្រេច ពេលនោះវានឹងដំណើរការជោគជ័យមិនខាន[cite: 1]!
