@@ -4,7 +4,3 @@ edge-tts
 python-multipart
 yt-dlp
 pydub
-```[cite: 1]
-
-៣. Save ហ្វាលនេះ ហើយ Commit / Push វាឡើងទៅកាន់ GitHub វិញ (ឬកែសម្រួលវាផ្ទាល់នៅលើ GitHub)[cite: 1]។
-៤. ត្រឡប់មកកាន់ Render Dashboard វិញ ហើយចុចប៊ូតុង **Manual Deploy** -> **Deploy latest commit** ជាការស្រេច ពេលនោះវានឹងដំណើរការជោគជ័យមិនខាន[cite: 1]!
