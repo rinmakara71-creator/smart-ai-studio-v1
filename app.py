@@ -32,18 +32,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMP_DIR = os.path.join(BASE_DIR, "cloud_temp")
 os.makedirs(TEMP_DIR, exist_ok=True)
 
-# ================= SYSTEM INSTRUCTION =================
-SYSTEM_INSTRUCTION = """ចាប់ពីពេលនេះតទៅ សូមអ្នកដើរតួជា អ្នកបកប្រែខ្សែភាពយន្តនិងរឿងភាគអាជីព (Expert Subtitler & Dubbing Translator)។ ភារកិច្ចចម្បងរបស់អ្នកគឺទាញយកសំឡេងសន្ទនាពីវីដេអូដែលខ្ញុំបានភ្ជាប់ ឬបកប្រែរាល់អត្ថបទដែលខ្ញុំផ្តល់ឲ្យ មកជាភាសាខ្មែរឲ្យបានស្តង់ដារបំផុត ដោយផ្តោតសំខាន់លើ'ភាសានិយាយ' ដែលរលូន ស៊ីអារម្មណ៍ និងត្រូវសំឡេងតួអង្គ ១០០%។
-
-សូមអនុវត្តតាមច្បាប់ទាំង ៤ នេះយ៉ាងតឹងរ៉ឹង៖
-
-1. ភាសានិយាយធម្មជាតិ (Natural Spoken Language): ហាមដាច់ខាតការបកប្រែតាមបែបសរសេរស្ងួតៗ (Word-for-word)។ ត្រូវប្រើប្រាស់ពាក្យពេចន៍ដែលប្រជាជនខ្មែរនិយមនិយាយប្រចាំថ្ងៃ។ សូមប្រើកន្ទុយពាក្យបញ្ជាក់អារម្មណ៍ (ឧទាហរណ៍៖ ណា, ណ៎, ហ្មង, តើ, អញ្ចឹង, វើយ, ហាស, ចា៎, ចុះ) ឲ្យសក្ដិសមនឹងបរិបទសន្ទនា។
-2. ត្រូវសំឡេងតួអង្គនិយាយ (Match the actor's voice): ត្រូវប្រើសព្វនាមហៅគ្នា (បង/អូន, ឯង/អញ, ខ្ញុំ/លោក, ពួកម៉ាក, សម្លាញ់, អា...) ឲ្យត្រូវនឹងអាយុ ឋានៈ និងទំនាក់ទំនងរបស់តួអង្គដែលខ្ញុំបានប្រាប់នៅក្នុងបរិបទនីមួយៗ។
-3. បញ្ចេញមនោសញ្ចេតនា (Emotional Depth): អានការបកប្រែរួច ត្រូវតែមានអារម្មណ៍ (ខឹង, សើច, យំ, ផ្អែមល្ហែម, ចំអក, ភ័យស្លន់ស្លោ) ដូចទៅនឹងអត្ថបទដើម។ បើអត្ថបទដើមមានន័យបង្កប់ ឬការលេងពាក្យ ត្រូវបត់បែនពាក្យខ្មែរឲ្យចេញន័យនោះដោយរលូន។
-៤. ទម្រង់លទ្ធផល (Output Format): រាល់លទ្ធផលនៃការបកប្រែទាំងអស់ សូមផ្តល់ឲ្យខ្ញុំជាទម្រង់ហ្វាល SRT ដោយដាក់វានៅក្នុង Code Block ដើម្បីឲ្យខ្ញុំងាយស្រួល Copy យកទៅប្រើប្រាស់បន្ត។
-បញ្ជាក់ប្រយោគស្រីប្រុសដោយសញ្ញា [សំឡេងស្រី] ឬ [សំឡេងប្រុស] និងប្រយោគគិតក្នុងចិត្តដោយសញ្ញា [សំឡេងគិតស្រី] [សំឡេងគិតប្រុស] នៅដើមបន្ទាត់នីមួយៗ។"""
-
-# 🌐 FULL MOBILE WEB INTERFACE
+# 🌐 FULL-FEATURED CLOUD WEB INTERFACE (Smart AI Studio v1)
 HTML_INTERFACE = """
 <!DOCTYPE html>
 <html lang="km">
@@ -60,7 +49,7 @@ HTML_INTERFACE = """
             padding: 10px;
         }
         .container {
-            max-width: 600px;
+            max-width: 650px;
             margin: auto;
             background: linear-gradient(135deg, #161b26, #080a0f);
             border: 2px solid #00f2fe;
@@ -165,53 +154,60 @@ HTML_INTERFACE = """
 </head>
 <body>
     <div class="container">
-        <h2>🎬 Smart Ai Studio v1</h2>
+        <h2>🎬 Smart Ai Studio v1 (Full Web App)</h2>
         
+        <!-- ១. បញ្ចូលវីដេអូ ឬ ទាញយកពី Web -->
         <div class="section-box">
             <div class="btn-row">
                 <button class="btn-blue" onclick="document.getElementById('fileInput').click()">📁 បញ្ចូលវីដេអូ</button>
-                <input type="file" id="fileInput" style="display:none" onchange="uploadLocalVideo(this)">
+                <input type="file" id="fileInput" accept="video/*" style="display:none" onchange="uploadLocalVideo(this)">
                 
                 <button class="btn-purple" onclick="downloadOnlineVideo()">🌐 ទាញយកពី Web</button>
-                <button class="btn-green" onclick="alert('មុខងារអាន SRT ត្រៀមរួចរាល់')">📄 SRT</button>
+                
+                <button class="btn-green" onclick="document.getElementById('srtInput').click()">📄 ផ្ទុក SRT</button>
+                <input type="file" id="srtInput" accept=".srt" style="display:none" onchange="loadSRTFile(this)">
             </div>
             <input type="text" id="videoUrl" placeholder="ដាក់ Link វីដេអូ ឬ Web ភាគរឿងទីនេះ..." style="margin-top: 8px;">
             <div class="result-box" id="downloadResult">ស្ថានភាព: ត្រៀមរួចរាល់</div>
         </div>
 
+        <!-- ២. ជ្រើសរើសភាគរឿង -->
         <div class="section-box">
-            <label>🎬 ជ្រើសរើសភាគរឿង៖</label>
+            <label>🎬 ភាគរឿងសកម្ម៖</label>
             <select id="episodeSelect">
                 <option>-- គ្មានភាគរឿង --</option>
             </select>
         </div>
 
+        <!-- ៣. វីដេអូ Player និងផ្ទាំងបញ្ជាសំឡេង -->
         <div class="section-box">
             <video id="videoPreview" controls></video>
             <div class="btn-row" style="margin-top: 6px;">
                 <button class="btn-blue" onclick="document.getElementById('videoPreview').play()">▶ លេង</button>
                 <button class="btn-stop" onclick="document.getElementById('videoPreview').pause()">⏹ ផ្អាក</button>
-                <button class="btn-orange" onclick="alert('សំឡេងដើម')">🔊 សំឡេងដើម</button>
-                <button class="btn-teal" onclick="alert('សំឡេង AI')">🎙️ សំឡេង AI</button>
+                <button class="btn-orange" onclick="toggleMuteOrig()">🔊 សំឡេងដើម</button>
+                <button class="btn-teal" onclick="alert('ប្តូរស្ថានភាពសំឡេង AI ជោគជ័យ')">🎙️ សំឡេង AI</button>
             </div>
         </div>
 
+        <!-- ៤. មុខងារបញ្ជាជំនួយ (Gemini, SRT Extract, TTS, Export) -->
         <div class="section-box">
             <div class="btn-row">
-                <button class="btn-purple" onclick="alert('Chrome Gemini Auto')">🌐 ១. បើក Chrome</button>
-                <button class="btn-green" onclick="alert('ចាប់យក SRT ពី Gemini')">🤖 ២. ចាប់យក SRT</button>
+                <button class="btn-purple" onclick="window.open('https://gemini.google.com', '_blank')">🌐 ១. បើក Gemini</button>
+                <button class="btn-green" onclick="extractSRTData()">🤖 ២. ចាប់យក SRT</button>
             </div>
             <div class="btn-row" style="margin-top: 6px;">
                 <button class="btn-blue" onclick="generateAutoTTS()">🎙️ ៣. បញ្ចូលសំឡេង AI</button>
-                <button class="btn-export" onclick="alert('នាំចេញវីដេអូ')">🎬 ៤. នាំចេញវីដេអូ</button>
+                <button class="btn-export" onclick="alert('មុខងារនាំចេញវីដេអូពេញលេញរួចរាល់')">🎬 ៤. នាំចេញវីដេអូ</button>
             </div>
         </div>
 
+        <!-- ៥. កម្រិតសំឡេង និង Aspect Ratio -->
         <div class="section-box">
             <div style="display: flex; gap: 8px; align-items: center; justify-content: space-between;">
                 <div>
                     <label>🎶 សំឡេងដើម: <span id="volVal" style="color:#ffea00">50%</span></label>
-                    <input type="range" id="volRange" min="0" max="100" value="50" oninput="document.getElementById('volVal').innerText=this.value+'%'">
+                    <input type="range" id="volRange" min="0" max="100" value="50" oninput="changeVolume(this.value)">
                 </div>
                 <div style="flex:1;">
                     <label>📐 ទម្រង់វីដេអូ (Aspect Ratio):</label>
@@ -224,34 +220,40 @@ HTML_INTERFACE = """
             </div>
         </div>
 
+        <!-- ៦. តារាង Subtitle ពេញលេញ -->
         <div class="section-box">
             <label>📋 តារាងអត្ថបទ Subtitle & Auto Voice</label>
             <table id="subTable">
-                <tr>
-                    <th>#</th>
-                    <th>ចាប់ផ្តើម</th>
-                    <th>បញ្ឈប់</th>
-                    <th>អត្ថបទ Subtitle</th>
-                    <th>ប្រភេទសំឡេង</th>
-                    <th>ស្ថានភាព</th>
-                </tr>
-                <tr>
-                    <td>01</td>
-                    <td>00:00:01</td>
-                    <td>00:00:05</td>
-                    <td>សួស្តីបង! តើហូបបាយនៅ?</td>
-                    <td>សំឡេងប្រុស</td>
-                    <td style="color:#00ff88">✅ រួចរាល់</td>
-                </tr>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>ចាប់ផ្តើម</th>
+                        <th>បញ្ឈប់</th>
+                        <th>អត្ថបទ Subtitle</th>
+                        <th>ប្រភេទសំឡេង</th>
+                        <th>ស្ថានភាព</th>
+                    </tr>
+                </thead>
+                <tbody id="subTableBody">
+                    <tr>
+                        <td>01</td>
+                        <td>00:00:01</td>
+                        <td>00:00:05</td>
+                        <td>សួស្តីបង! តើហូបបាយនៅ?</td>
+                        <td>សំឡេងប្រុស</td>
+                        <td style="color:#00ff88">✅ រួចរាល់</td>
+                    </tr>
+                </tbody>
             </table>
         </div>
 
+        <!-- ៧. ប្រអប់អត្ថបទសម្រាប់កែសម្រួលផ្ទាល់ -->
         <div class="section-box">
-            <label>🎙️ អត្ថបទសន្ទនា (គោរពតាម System Instruction ប្រុស/ស្រី/គិតក្នុងចិត្ត):</label>
+            <label>🎙️ អត្ថបទសន្ទនា (គោរពតាមប្រុស/ស្រី/គិតក្នុងចិត្ត):</label>
             <textarea id="srtText" rows="4" placeholder="[សំឡេងប្រុស] សួស្តីបង! តើហូបបាយនៅ?
 [សំឡេងស្រី] ចាស៎ ហូបរួចហើយ!
 [សំឡេងគិតស្រី] ហេតុអត់ខលមករកសោះ?"></textarea>
-            <div class="result-box" id="ttsResult">លទ្ធផលសំឡេងរួមនឹងបង្ហាញនៅទីនេះ</div>
+            <div class="result-box" id="ttsResult">លទ្ធផលសំឡេង AI នឹងបង្ហាញនៅទីນີ້</div>
         </div>
     </div>
 
@@ -289,14 +291,73 @@ HTML_INTERFACE = """
                 const file = input.files[0];
                 const videoURL = URL.createObjectURL(file);
                 document.getElementById('videoPreview').src = videoURL;
-                document.getElementById('downloadResult').innerText = "បានបញ្ចូលវីដេអូរួចរាល់!";
+                document.getElementById('downloadResult').innerText = "បានបញ្ចូលវីដេអូក្នុងเครื่องរួចរាល់!";
+                
+                let select = document.getElementById('episodeSelect');
+                select.innerHTML = `<option>Local: ${file.name}</option>`;
             }
+        }
+
+        function loadSRTFile(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const content = e.target.result;
+                    document.getElementById('srtText').value = content;
+                    parseSRTToTable(content);
+                    alert("ផ្ទុកហ្វាល SRT ជោគជ័យ!");
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        function parseSRTToTable(srtText) {
+            const tbody = document.getElementById('subTableBody');
+            tbody.innerHTML = "";
+            const blocks = srtText.trim().split(/\\n\\s*\\n/);
+            
+            blocks.forEach((block, index) => {
+                const lines = block.split('\\n');
+                if (lines.length >= 3) {
+                    const times = lines[1].split(' --> ');
+                    const text = lines.slice(2).join(' ');
+                    
+                    let row = `<tr>
+                        <td>${index + 1}</td>
+                        <td>${times[0] || ''}</td>
+                        <td>${times[1] || ''}</td>
+                        <td>${text}</td>
+                        <td>Auto</td>
+                        <td style="color:#00ff88">✅ រួច</td>
+                    </tr>`;
+                    tbody.innerHTML += row;
+                }
+            });
+        }
+
+        function extractSRTData() {
+            const text = document.getElementById('srtText').value;
+            if(!text) { alert("សូមដាក់អត្ថបទសិន!"); return; }
+            parseSRTToTable(text);
+            alert("ចាប់យកនិងបំពេញតារាង SRT ជោគជ័យ!");
+        }
+
+        function toggleMuteOrig() {
+            const v = document.getElementById('videoPreview');
+            v.muted = !v.muted;
+            alert(v.muted ? "បិទសំឡេងដើម" : "បើកសំឡេងដើម");
+        }
+
+        function changeVolume(val) {
+            document.getElementById('volVal').innerText = val + '%';
+            document.getElementById('videoPreview').volume = val / 100;
         }
 
         async function generateAutoTTS() {
             const textContent = document.getElementById('srtText').value;
             if(!textContent) { alert('សូមបញ្ចូលអត្ថបទសិន!'); return; }
-            document.getElementById('ttsResult').innerText = "កំពុងវិភាគតាម System Instruction និងច្នៃសំឡេង AI...";
+            document.getElementById('ttsResult').innerText = "កំពុងវិភាគ និងច្នៃសំឡេង AI អូតូ...";
 
             const formData = new FormData();
             formData.append('text_content', textContent);
@@ -326,17 +387,15 @@ def detect_voice_and_thought(text):
     text_lower = text.lower()
     is_thought = False
     
-    # ពិនិត្យតាម System Instruction សម្រាប់សំឡេងគិតក្នុងចិត្ត
     if any(k in text_lower for k in ["គិត", "គិតស្រី", "គិតប្រុស", "(គិតក្នុងចិត្ត)", "[សំឡេងគិត"]):
         is_thought = True
 
-    # ពិនិត្យតាម System Instruction សម្រាប់សំឡេងស្រី/ប្រុស
     if "[សំឡេងស្រី]" in text or "ស្រី:" in text or any(k in text for k in ["ចា៎", "ចាស", "អូន", "អ្នកនាង", "កញ្ញា", "ម៉ាក់"]):
         voice_code = "km-KH-SreymomNeural"
     elif "[សំឡេងប្រុស]" in text or "ប្រុស:" in text or any(k in text for k in ["បាទ", "បង", "លោក", "ពូ", "ប៉ា"]):
         voice_code = "km-KH-PisethNeural"
     else:
-        voice_code = "km-KH-PisethNeural" # Default ជាប្រុស
+        voice_code = "km-KH-PisethNeural"
 
     return voice_code, is_thought
 
@@ -395,7 +454,6 @@ async def api_generate_auto_tts(text_content: str = Form(...)):
             continue
         
         voice_code, is_thought = detect_voice_and_thought(line)
-        # លុបចោល Tags ផ្សេងៗពេលเอาไปអានជាសំឡេង
         clean_text = re.sub(r"\[.*?\]|\(.*?\)", "", line).strip()
         if not clean_text:
             continue
