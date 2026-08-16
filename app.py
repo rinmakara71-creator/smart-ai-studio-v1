@@ -32,49 +32,144 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMP_DIR = os.path.join(BASE_DIR, "cloud_temp")
 os.makedirs(TEMP_DIR, exist_ok=True)
 
+# 📱 ឌីសាញស្ទីលបែប Desktop Dark Theme ស្រដៀងក្នុងរូបភាព ប៉ុន្តែសម្របតាមទូរសព្ទដៃ
 HTML_INTERFACE = """
 <!DOCTYPE html>
 <html lang="km">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart AI Studio v1 - Cloud Edition</title>
+    <title>Smart Ai Studio v1 - Mobile Edition</title>
     <style>
-        body { font-family: 'Khmer OS Battambang', sans-serif; background: #0b0d12; color: #e6edf3; padding: 15px; margin: 0; }
-        .container { max-width: 800px; margin: auto; background: #161b26; padding: 25px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
-        h2 { text-align: center; color: #00f2fe; margin-bottom: 20px; }
-        .card { background: #0f141f; padding: 18px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #283044; }
-        label { display: block; margin-top: 10px; font-weight: bold; color: #00f2fe; font-size: 13px; }
-        input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; background: #06080c; border: 1px solid #475569; color: #ffea00; border-radius: 8px; box-sizing: border-box; font-weight: bold; font-family: inherit; }
-        button { width: 100%; margin-top: 15px; background: linear-gradient(to bottom, #00d2ff, #0059b3); color: white; padding: 12px; border: none; border-radius: 8px; font-size: 15px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        button:hover { background: linear-gradient(to bottom, #33d6ff, #004080); }
-        .btn-green { background: linear-gradient(to bottom, #00ff88, #006633) !important; }
-        .btn-purple { background: linear-gradient(to bottom, #b855ff, #4a00e0) !important; }
-        .result-box { margin-top: 15px; text-align: center; background: #06080c; padding: 12px; border-radius: 8px; }
-        audio, video { width: 100%; margin-top: 10px; border-radius: 6px; }
+        body {
+            font-family: 'Khmer OS Battambang', sans-serif;
+            background-color: #0b0d12;
+            color: #e6edf3;
+            margin: 0;
+            padding: 10px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: linear-gradient(135deg, #161b26, #080a0f);
+            border: 2px solid #00f2fe;
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.8);
+        }
+        h2 {
+            text-align: center;
+            color: #00f2fe;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        .section-box {
+            background: linear-gradient(to bottom, #1a2332, #0a0d14);
+            border: 2px solid #00f2fe;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+        label {
+            display: block;
+            margin-top: 8px;
+            font-weight: bold;
+            color: #00f2fe;
+            font-size: 12px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            background-color: #06080c;
+            border: 2px solid #1e2536;
+            color: #ffea00;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-weight: bold;
+            font-family: inherit;
+            font-size: 13px;
+        }
+        .btn-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        button {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-bottom: 3px solid #05070a;
+            color: white;
+        }
+        button:hover { opacity: 0.9; }
+        
+        /* ពណ៌ប៊ូតុងស្ដារតាម Desktop */
+        .btn-blue { background: linear-gradient(to bottom, #00d2ff, #003b73); border-color: #80e5ff; }
+        .btn-purple { background: linear-gradient(to bottom, #b855ff, #4a00e0); border-color: #e2b3ff; }
+        .btn-green { background: linear-gradient(to bottom, #00ff88, #006633); border-color: #80ffc3; }
+        .btn-stop { background: linear-gradient(to bottom, #ff5252, #610000); border-color: #ffb2b2; }
+        .btn-orange { background: linear-gradient(to bottom, #ffa726, #804600); border-color: #ffd699; }
+        .btn-teal { background: linear-gradient(to bottom, #4dd0e1, #004d66); border-color: #b2ebf2; }
+        .btn-export { background: linear-gradient(to bottom, #ff4b72, #80002a); border-color: #ffb3c6; }
+
+        .result-box {
+            margin-top: 10px;
+            text-align: center;
+            background: #06080c;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            border: 1px solid #283044;
+        }
+        audio, video {
+            width: 100%;
+            margin-top: 8px;
+            border-radius: 6px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>🎬 Smart AI Studio v1 (Cloud Edition)</h2>
+        <h2>🎬 Smart Ai Studio v1 (Mobile Edition)</h2>
         
-        <div class="card">
-            <h3>🌐 ១. ទាញយកវីដេអូរឿងភាគ</h3>
-            <label>ដាក់ Link វីដេអូ:</label>
-            <input type="text" id="videoUrl" placeholder="https://...">
-            <button class="btn-purple" onclick="downloadVideo()">ទាញយកវីដេអូអូតូ</button>
+        <!-- ១. ផ្នែកទាញយកវីដេអូ និងបញ្ចូល URL -->
+        <div class="section-box">
+            <label>🌐 ទាញយកវីដេអូរឿងភាគ (ពី Web / YouTube)</label>
+            <input type="text" id="videoUrl" placeholder="ដាក់ Link វីដេអូនៅទីនេះ...">
+            <div class="btn-row">
+                <button class="btn-purple" onclick="downloadVideo()">🌐 ទាញយកវីដេអូអូតូ</button>
+            </div>
             <div class="result-box" id="downloadResult">ស្ថានភាព: ត្រៀមរួចរាល់</div>
         </div>
 
-        <div class="card">
-            <h3>🎙️ ២. បញ្ចូលសំឡេង AI (Auto Detect Voice & Thought)</h3>
-            <label>អត្ថបទសន្ទនា:</label>
-            <textarea id="srtText" rows="6" placeholder="សួស្តីបង! តើហូបបាយនៅ?
+        <!-- ២. ផ្នែកបញ្ជាចាក់វីដេអូ និងការគ្រប់គ្រងសំឡេង -->
+        <div class="section-box">
+            <label>🎥 ត្រួតពិនិត្យវីដេអូនិងសំឡេង</label>
+            <video id="videoPreview" controls style="background:#000; height: 200px; object-fit: contain;"></video>
+            
+            <div class="btn-row">
+                <button class="btn-blue" onclick="playVideo()">▶ លេង</button>
+                <button class="btn-stop" onclick="stopVideo()">⏹ បញ្ឈប់</button>
+            </div>
+        </div>
+
+        <!-- 3. ផ្នែកបង្កើតសំឡេង AI អូតូតាមតួអង្គ -->
+        <div class="section-box">
+            <label>🎙️ បញ្ចូលសំឡេង AI (Auto Gender & Thought Detection)</label>
+            <textarea id="srtText" rows="5" placeholder="សួស្តីបង! តើហូបបាយនៅ?
 ចាស៎ ហូបរួចហើយ!
 (គិតក្នុងចិត្ត) ហេតុអត់ខលមករកសោះ?"></textarea>
             
-            <button class="btn-green" onclick="generateBatchTTS()">បង្កើតសំឡេង AI អូតូ</button>
-            <div class="result-box" id="ttsBatchResult">លទ្ធផលសំឡេងរួមនឹងបង្ហាញនៅទីនេះ</div>
+            <div class="btn-row">
+                <button class="btn-green" onclick="generateAutoTTS()">🎙️ ៣. បង្កើតសំឡេង AI</button>
+            </div>
+            <div class="result-box" id="ttsResult">លទ្ធផលសំឡេង AI នឹងបង្ហាញនៅទីនេះ</div>
         </div>
     </div>
 
@@ -91,7 +186,8 @@ HTML_INTERFACE = """
                 const res = await fetch('/api/download-video', { method: 'POST', body: formData });
                 const data = await res.json();
                 if(res.ok) {
-                    document.getElementById('downloadResult').innerHTML = `<p style="color: #00ff88;">ទាញយកជោគជ័យ! File: ${data.filename}</p>`;
+                    document.getElementById('downloadResult').innerHTML = `<p style="color: #00ff88;">ទាញយកជោគជ័យ!</p>`;
+                    document.getElementById('videoPreview').src = "/cloud_temp/" + data.filename;
                 } else {
                     document.getElementById('downloadResult').innerText = "បរាជ័យ: " + data.detail;
                 }
@@ -100,10 +196,20 @@ HTML_INTERFACE = """
             }
         }
 
-        async function generateBatchTTS() {
+        function playVideo() {
+            document.getElementById('videoPreview').play();
+        }
+
+        function stopVideo() {
+            const v = document.getElementById('videoPreview');
+            v.pause();
+            v.currentTime = 0;
+        }
+
+        async function generateAutoTTS() {
             const textContent = document.getElementById('srtText').value;
             if(!textContent) { alert('សូមបញ្ចូលអត្ថបទសិន!'); return; }
-            document.getElementById('ttsBatchResult').innerText = "កំពុងវិភាគនិងច្នៃសំឡេង AI អូតូ...";
+            document.getElementById('ttsResult').innerText = "កំពុងវិភាគ និងច្នៃសំឡេង AI អូតូ...";
 
             const formData = new FormData();
             formData.append('text_content', textContent);
@@ -113,15 +219,15 @@ HTML_INTERFACE = """
                 if(res.ok) {
                     const blob = await res.blob();
                     const audioUrl = URL.createObjectURL(blob);
-                    document.getElementById('ttsBatchResult').innerHTML = `
-                        <p style="color: #00ff88;">បង្កើតសំឡេង AI អូតូជោគជ័យ!</p>
+                    document.getElementById('ttsResult').innerHTML = `
+                        <p style="color: #00ff88;">បង្កើតសំឡេង AI ជោគជ័យ!</p>
                         <audio controls src="${audioUrl}"></audio>
                     `;
                 } else {
-                    document.getElementById('ttsBatchResult').innerText = "មានបញ្ហាពេលបង្កើតសំឡេង!";
+                    document.getElementById('ttsResult').innerText = "មានបញ្ហាពេលបង្កើតសំឡេង!";
                 }
             } catch(e) {
-                document.getElementById('ttsBatchResult').innerText = "កំហុស: " + e;
+                document.getElementById('ttsResult').innerText = "កំហុស: " + e;
             }
         }
     </script>
@@ -156,6 +262,13 @@ def add_reverb_thought_effect(sound):
 @app.get("/", response_class=HTMLResponse)
 async def home():
     return HTML_INTERFACE
+
+@app.get("/cloud_temp/{filename}")
+async def get_temp_file(filename: str):
+    file_path = os.path.join(TEMP_DIR, filename)
+    if os.path.exists(file_path):
+        return FileResponse(file_path)
+    return {"detail": "File not found"}
 
 @app.post("/api/download-video")
 async def api_download_video(url: str = Form(...)):
