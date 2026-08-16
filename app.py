@@ -38,7 +38,7 @@ HTML_INTERFACE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart AI Studio v1 - Auto Voice Cloud</title>
+    <title>Smart AI Studio v1 - Cloud Edition</title>
     <style>
         body { font-family: 'Khmer OS Battambang', sans-serif; background: #0b0d12; color: #e6edf3; padding: 15px; margin: 0; }
         .container { max-width: 800px; margin: auto; background: #161b26; padding: 25px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
@@ -56,7 +56,7 @@ HTML_INTERFACE = """
 </head>
 <body>
     <div class="container">
-        <h2>🎬 Smart AI Studio v1 (Auto Voice Edition)</h2>
+        <h2>🎬 Smart AI Studio v1 (Cloud Edition)</h2>
         
         <div class="card">
             <h3>🌐 ១. ទាញយកវីដេអូរឿងភាគ</h3>
