@@ -32,14 +32,25 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMP_DIR = os.path.join(BASE_DIR, "cloud_temp")
 os.makedirs(TEMP_DIR, exist_ok=True)
 
-# 📱 ឌីសាញស្ទីលបែប Desktop Dark Theme ស្រដៀងក្នុងរូបភាព ប៉ុន្តែសម្របតាមទូរសព្ទដៃ
+# ================= SYSTEM INSTRUCTION =================
+SYSTEM_INSTRUCTION = """ចាប់ពីពេលនេះតទៅ សូមអ្នកដើរតួជា អ្នកបកប្រែខ្សែភាពយន្តនិងរឿងភាគអាជីព (Expert Subtitler & Dubbing Translator)។ ភារកិច្ចចម្បងរបស់អ្នកគឺទាញយកសំឡេងសន្ទនាពីវីដេអូដែលខ្ញុំបានភ្ជាប់ ឬបកប្រែរាល់អត្ថបទដែលខ្ញុំផ្តល់ឲ្យ មកជាភាសាខ្មែរឲ្យបានស្តង់ដារបំផុត ដោយផ្តោតសំខាន់លើ'ភាសានិយាយ' ដែលរលូន ស៊ីអារម្មណ៍ និងត្រូវសំឡេងតួអង្គ ១០០%។
+
+សូមអនុវត្តតាមច្បាប់ទាំង ៤ នេះយ៉ាងតឹងរ៉ឹង៖
+
+1. ភាសានិយាយធម្មជាតិ (Natural Spoken Language): ហាមដាច់ខាតការបកប្រែតាមបែបសរសេរស្ងួតៗ (Word-for-word)។ ត្រូវប្រើប្រាស់ពាក្យពេចន៍ដែលប្រជាជនខ្មែរនិយមនិយាយប្រចាំថ្ងៃ។ សូមប្រើកន្ទុយពាក្យបញ្ជាក់អារម្មណ៍ (ឧទាហរណ៍៖ ណា, ណ៎, ហ្មង, តើ, អញ្ចឹង, វើយ, ហាស, ចា៎, ចុះ) ឲ្យសក្ដិសមនឹងបរិបទសន្ទនា។
+2. ត្រូវសំឡេងតួអង្គនិយាយ (Match the actor's voice): ត្រូវប្រើសព្វនាមហៅគ្នា (បង/អូន, ឯង/អញ, ខ្ញុំ/លោក, ពួកម៉ាក, សម្លាញ់, អា...) ឲ្យត្រូវនឹងអាយុ ឋានៈ និងទំនាក់ទំនងរបស់តួអង្គដែលខ្ញុំបានប្រាប់នៅក្នុងបរិបទនីមួយៗ។
+3. បញ្ចេញមនោសញ្ចេតនា (Emotional Depth): អានការបកប្រែរួច ត្រូវតែមានអារម្មណ៍ (ខឹង, សើច, យំ, ផ្អែមល្ហែម, ចំអក, ភ័យស្លន់ស្លោ) ដូចទៅនឹងអត្ថបទដើម។ បើអត្ថបទដើមមានន័យបង្កប់ ឬការលេងពាក្យ ត្រូវបត់បែនពាក្យខ្មែរឲ្យចេញន័យនោះដោយរលូន។
+៤. ទម្រង់លទ្ធផល (Output Format): រាល់លទ្ធផលនៃការបកប្រែទាំងអស់ សូមផ្តល់ឲ្យខ្ញុំជាទម្រង់ហ្វាល SRT ដោយដាក់វានៅក្នុង Code Block ដើម្បីឲ្យខ្ញុំងាយស្រួល Copy យកទៅប្រើប្រាស់បន្ត។
+បញ្ជាក់ប្រយោគស្រីប្រុសដោយសញ្ញា [សំឡេងស្រី] ឬ [សំឡេងប្រុស] និងប្រយោគគិតក្នុងចិត្តដោយសញ្ញា [សំឡេងគិតស្រី] [សំឡេងគិតប្រុស] នៅដើមបន្ទាត់នីមួយៗ។"""
+
+# 🌐 FULL MOBILE WEB INTERFACE
 HTML_INTERFACE = """
 <!DOCTYPE html>
 <html lang="km">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Ai Studio v1 - Mobile Edition</title>
+    <title>Smart Ai Studio v1 - Full Cloud Edition</title>
     <style>
         body {
             font-family: 'Khmer OS Battambang', sans-serif;
@@ -60,47 +71,47 @@ HTML_INTERFACE = """
         h2 {
             text-align: center;
             color: #00f2fe;
-            margin-bottom: 15px;
-            font-size: 18px;
+            margin-bottom: 12px;
+            font-size: 16px;
         }
         .section-box {
             background: linear-gradient(to bottom, #1a2332, #0a0d14);
             border: 2px solid #00f2fe;
             border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 12px;
+            padding: 10px;
+            margin-bottom: 10px;
         }
         label {
             display: block;
-            margin-top: 8px;
+            margin-top: 6px;
             font-weight: bold;
             color: #00f2fe;
-            font-size: 12px;
+            font-size: 11px;
         }
         input, select, textarea {
             width: 100%;
-            padding: 10px;
-            margin-top: 5px;
+            padding: 8px;
+            margin-top: 4px;
             background-color: #06080c;
             border: 2px solid #1e2536;
             color: #ffea00;
-            border-radius: 8px;
+            border-radius: 6px;
             box-sizing: border-box;
             font-weight: bold;
             font-family: inherit;
-            font-size: 13px;
+            font-size: 12px;
         }
         .btn-row {
             display: flex;
-            gap: 8px;
-            margin-top: 10px;
+            gap: 6px;
+            margin-top: 8px;
             flex-wrap: wrap;
         }
         button {
             flex: 1;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 12px;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 11px;
             cursor: pointer;
             font-weight: bold;
             border: 1px solid rgba(255,255,255,0.2);
@@ -109,7 +120,6 @@ HTML_INTERFACE = """
         }
         button:hover { opacity: 0.9; }
         
-        /* ពណ៌ប៊ូតុងស្ដារតាម Desktop */
         .btn-blue { background: linear-gradient(to bottom, #00d2ff, #003b73); border-color: #80e5ff; }
         .btn-purple { background: linear-gradient(to bottom, #b855ff, #4a00e0); border-color: #e2b3ff; }
         .btn-green { background: linear-gradient(to bottom, #00ff88, #006633); border-color: #80ffc3; }
@@ -119,62 +129,134 @@ HTML_INTERFACE = """
         .btn-export { background: linear-gradient(to bottom, #ff4b72, #80002a); border-color: #ffb3c6; }
 
         .result-box {
-            margin-top: 10px;
+            margin-top: 8px;
             text-align: center;
             background: #06080c;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 12px;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 11px;
             border: 1px solid #283044;
         }
-        audio, video {
+        video {
+            width: 100%;
+            margin-top: 6px;
+            border-radius: 6px;
+            background: #000;
+            height: 200px;
+            object-fit: contain;
+        }
+        table {
             width: 100%;
             margin-top: 8px;
-            border-radius: 6px;
+            border-collapse: collapse;
+            background: #06080c;
+            font-size: 10px;
+        }
+        th, td {
+            border: 1px solid #283044;
+            padding: 5px;
+            text-align: center;
+        }
+        th {
+            background: #1a2332;
+            color: #00f2fe;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>🎬 Smart Ai Studio v1 (Mobile Edition)</h2>
+        <h2>🎬 Smart Ai Studio v1</h2>
         
-        <!-- ១. ផ្នែកទាញយកវីដេអូ និងបញ្ចូល URL -->
         <div class="section-box">
-            <label>🌐 ទាញយកវីដេអូរឿងភាគ (ពី Web / YouTube)</label>
-            <input type="text" id="videoUrl" placeholder="ដាក់ Link វីដេអូនៅទីនេះ...">
             <div class="btn-row">
-                <button class="btn-purple" onclick="downloadVideo()">🌐 ទាញយកវីដេអូអូតូ</button>
+                <button class="btn-blue" onclick="document.getElementById('fileInput').click()">📁 បញ្ចូលវីដេអូ</button>
+                <input type="file" id="fileInput" style="display:none" onchange="uploadLocalVideo(this)">
+                
+                <button class="btn-purple" onclick="downloadOnlineVideo()">🌐 ទាញយកពី Web</button>
+                <button class="btn-green" onclick="alert('មុខងារអាន SRT ត្រៀមរួចរាល់')">📄 SRT</button>
             </div>
+            <input type="text" id="videoUrl" placeholder="ដាក់ Link វីដេអូ ឬ Web ភាគរឿងទីនេះ..." style="margin-top: 8px;">
             <div class="result-box" id="downloadResult">ស្ថានភាព: ត្រៀមរួចរាល់</div>
         </div>
 
-        <!-- ២. ផ្នែកបញ្ជាចាក់វីដេអូ និងការគ្រប់គ្រងសំឡេង -->
         <div class="section-box">
-            <label>🎥 ត្រួតពិនិត្យវីដេអូនិងសំឡេង</label>
-            <video id="videoPreview" controls style="background:#000; height: 200px; object-fit: contain;"></video>
-            
-            <div class="btn-row">
-                <button class="btn-blue" onclick="playVideo()">▶ លេង</button>
-                <button class="btn-stop" onclick="stopVideo()">⏹ បញ្ឈប់</button>
+            <label>🎬 ជ្រើសរើសភាគរឿង៖</label>
+            <select id="episodeSelect">
+                <option>-- គ្មានភាគរឿង --</option>
+            </select>
+        </div>
+
+        <div class="section-box">
+            <video id="videoPreview" controls></video>
+            <div class="btn-row" style="margin-top: 6px;">
+                <button class="btn-blue" onclick="document.getElementById('videoPreview').play()">▶ លេង</button>
+                <button class="btn-stop" onclick="document.getElementById('videoPreview').pause()">⏹ ផ្អាក</button>
+                <button class="btn-orange" onclick="alert('សំឡេងដើម')">🔊 សំឡេងដើម</button>
+                <button class="btn-teal" onclick="alert('សំឡេង AI')">🎙️ សំឡេង AI</button>
             </div>
         </div>
 
-        <!-- 3. ផ្នែកបង្កើតសំឡេង AI អូតូតាមតួអង្គ -->
         <div class="section-box">
-            <label>🎙️ បញ្ចូលសំឡេង AI (Auto Gender & Thought Detection)</label>
-            <textarea id="srtText" rows="5" placeholder="សួស្តីបង! តើហូបបាយនៅ?
-ចាស៎ ហូបរួចហើយ!
-(គិតក្នុងចិត្ត) ហេតុអត់ខលមករកសោះ?"></textarea>
-            
             <div class="btn-row">
-                <button class="btn-green" onclick="generateAutoTTS()">🎙️ ៣. បង្កើតសំឡេង AI</button>
+                <button class="btn-purple" onclick="alert('Chrome Gemini Auto')">🌐 ១. បើក Chrome</button>
+                <button class="btn-green" onclick="alert('ចាប់យក SRT ពី Gemini')">🤖 ២. ចាប់យក SRT</button>
             </div>
-            <div class="result-box" id="ttsResult">លទ្ធផលសំឡេង AI នឹងបង្ហាញនៅទីនេះ</div>
+            <div class="btn-row" style="margin-top: 6px;">
+                <button class="btn-blue" onclick="generateAutoTTS()">🎙️ ៣. បញ្ចូលសំឡេង AI</button>
+                <button class="btn-export" onclick="alert('នាំចេញវីដេអូ')">🎬 ៤. នាំចេញវីដេអូ</button>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <div style="display: flex; gap: 8px; align-items: center; justify-content: space-between;">
+                <div>
+                    <label>🎶 សំឡេងដើម: <span id="volVal" style="color:#ffea00">50%</span></label>
+                    <input type="range" id="volRange" min="0" max="100" value="50" oninput="document.getElementById('volVal').innerText=this.value+'%'">
+                </div>
+                <div style="flex:1;">
+                    <label>📐 ទម្រង់វីដេអូ (Aspect Ratio):</label>
+                    <select id="aspectRatio">
+                        <option>Original</option>
+                        <option>16:9 (YouTube)</option>
+                        <option>9:16 (TikTok/Shorts)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <label>📋 តារាងអត្ថបទ Subtitle & Auto Voice</label>
+            <table id="subTable">
+                <tr>
+                    <th>#</th>
+                    <th>ចាប់ផ្តើម</th>
+                    <th>បញ្ឈប់</th>
+                    <th>អត្ថបទ Subtitle</th>
+                    <th>ប្រភេទសំឡេង</th>
+                    <th>ស្ថានភាព</th>
+                </tr>
+                <tr>
+                    <td>01</td>
+                    <td>00:00:01</td>
+                    <td>00:00:05</td>
+                    <td>សួស្តីបង! តើហូបបាយនៅ?</td>
+                    <td>សំឡេងប្រុស</td>
+                    <td style="color:#00ff88">✅ រួចរាល់</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="section-box">
+            <label>🎙️ អត្ថបទសន្ទនា (គោរពតាម System Instruction ប្រុស/ស្រី/គិតក្នុងចិត្ត):</label>
+            <textarea id="srtText" rows="4" placeholder="[សំឡេងប្រុស] សួស្តីបង! តើហូបបាយនៅ?
+[សំឡេងស្រី] ចាស៎ ហូបរួចហើយ!
+[សំឡេងគិតស្រី] ហេតុអត់ខលមករកសោះ?"></textarea>
+            <div class="result-box" id="ttsResult">លទ្ធផលសំឡេងរួមនឹងបង្ហាញនៅទីនេះ</div>
         </div>
     </div>
 
     <script>
-        async function downloadVideo() {
+        async function downloadOnlineVideo() {
             const url = document.getElementById('videoUrl').value;
             if(!url) { alert('សូមបញ្ចូល Link វីដេអូ!'); return; }
             document.getElementById('downloadResult').innerText = "កំពុងទាញយកវីដេអូ...";
@@ -188,6 +270,9 @@ HTML_INTERFACE = """
                 if(res.ok) {
                     document.getElementById('downloadResult').innerHTML = `<p style="color: #00ff88;">ទាញយកជោគជ័យ!</p>`;
                     document.getElementById('videoPreview').src = "/cloud_temp/" + data.filename;
+                    
+                    let select = document.getElementById('episodeSelect');
+                    select.innerHTML = `<option>ភាគ 01: ${data.filename}</option>`;
                 } else {
                     document.getElementById('downloadResult').innerText = "បរាជ័យ: " + data.detail;
                 }
@@ -196,20 +281,19 @@ HTML_INTERFACE = """
             }
         }
 
-        function playVideo() {
-            document.getElementById('videoPreview').play();
-        }
-
-        function stopVideo() {
-            const v = document.getElementById('videoPreview');
-            v.pause();
-            v.currentTime = 0;
+        function uploadLocalVideo(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const videoURL = URL.createObjectURL(file);
+                document.getElementById('videoPreview').src = videoURL;
+                document.getElementById('downloadResult').innerText = "បានបញ្ចូលវីដេអូរួចរាល់!";
+            }
         }
 
         async function generateAutoTTS() {
             const textContent = document.getElementById('srtText').value;
             if(!textContent) { alert('សូមបញ្ចូលអត្ថបទសិន!'); return; }
-            document.getElementById('ttsResult').innerText = "កំពុងវិភាគ និងច្នៃសំឡេង AI អូតូ...";
+            document.getElementById('ttsResult').innerText = "កំពុងវិភាគតាម System Instruction និងច្នៃសំឡេង AI...";
 
             const formData = new FormData();
             formData.append('text_content', textContent);
@@ -239,15 +323,17 @@ def detect_voice_and_thought(text):
     text_lower = text.lower()
     is_thought = False
     
-    if any(k in text_lower for k in ["គិត", "(គិតក្នុងចិត្ត)", "[គិត]"]):
+    # ពិនិត្យតាម System Instruction សម្រាប់សំឡេងគិតក្នុងចិត្ត
+    if any(k in text_lower for k in ["គិត", "គិតស្រី", "គិតប្រុស", "(គិតក្នុងចិត្ត)", "[សំឡេងគិត"]):
         is_thought = True
 
-    female_keywords = ["ចា៎", "ចាស", "អូន", "អ្នកនាង", "កញ្ញា", "លោកស្រី", "ម៉ាក់", "នាង", "ស្រី"]
-    
-    if any(k in text for k in female_keywords) or "[សំឡេងស្រី]" in text:
+    # ពិនិត្យតាម System Instruction សម្រាប់សំឡេងស្រី/ប្រុស
+    if "[សំឡេងស្រី]" in text or "ស្រី:" in text or any(k in text for k in ["ចា៎", "ចាស", "អូន", "អ្នកនាង", "កញ្ញា", "ម៉ាក់"]):
         voice_code = "km-KH-SreymomNeural"
-    else:
+    elif "[សំឡេងប្រុស]" in text or "ប្រុស:" in text or any(k in text for k in ["បាទ", "បង", "លោក", "ពូ", "ប៉ា"]):
         voice_code = "km-KH-PisethNeural"
+    else:
+        voice_code = "km-KH-PisethNeural" # Default ជាប្រុស
 
     return voice_code, is_thought
 
@@ -306,6 +392,7 @@ async def api_generate_auto_tts(text_content: str = Form(...)):
             continue
         
         voice_code, is_thought = detect_voice_and_thought(line)
+        # លុបចោល Tags ផ្សេងៗពេលเอาไปអានជាសំឡេង
         clean_text = re.sub(r"\[.*?\]|\(.*?\)", "", line).strip()
         if not clean_text:
             continue
