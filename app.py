@@ -258,7 +258,10 @@ HTML_INTERFACE = """
     <script>
         async function downloadOnlineVideo() {
             const url = document.getElementById('videoUrl').value;
-            if(!url) { alert('សូមបញ្ចូល Link វីដេអូ!'); return; }
+            if(!url) { 
+                document.getElementById('downloadResult').innerText = "⚠️ សូមបញ្ចូល Link វីដេអូជាមុនសិន!";
+                return; 
+            }
             document.getElementById('downloadResult').innerText = "កំពុងទាញយកវីដេអូ...";
 
             const formData = new FormData();
