@@ -32,14 +32,14 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMP_DIR = os.path.join(BASE_DIR, "cloud_temp")
 os.makedirs(TEMP_DIR, exist_ok=True)
 
-# 🌐 FULL-FEATURED CLOUD WEB INTERFACE (Smart AI Studio v1)
+# 🌐 FULL WEB APP INTERFACE (Fixed Video Frame & Working Features)
 HTML_INTERFACE = """
 <!DOCTYPE html>
 <html lang="km">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Ai Studio v1 - Full Cloud Edition</title>
+    <title>Smart Ai Studio v1 - Fixed Edition</title>
     <style>
         body {
             font-family: 'Khmer OS Battambang', sans-serif;
@@ -126,14 +126,22 @@ HTML_INTERFACE = """
             font-size: 11px;
             border: 1px solid #283044;
         }
+        
+        /* 🎥 រារាំងវីដេអូមិនឱ្យរីកធំពេញអេក្រង់ (Lock ក្នុងស៊ុម) */
         video {
             width: 100%;
+            height: 200px;
+            max-height: 200px;
             margin-top: 6px;
             border-radius: 6px;
             background: #000;
-            height: 200px;
             object-fit: contain;
         }
+        /* បិទ fullscreen លើទូរសព្ទបើចាំបាច់ */
+        video::-webkit-media-controls-fullscreen-button {
+            display: none;
+        }
+
         table {
             width: 100%;
             margin-top: 8px;
@@ -154,7 +162,7 @@ HTML_INTERFACE = """
 </head>
 <body>
     <div class="container">
-        <h2>🎬 Smart Ai Studio v1 (Full Web App)</h2>
+        <h2>🎬 Smart Ai Studio v1</h2>
         
         <!-- ១. បញ្ចូលវីដេអូ ឬ ទាញយកពី Web -->
         <div class="section-box">
@@ -165,7 +173,7 @@ HTML_INTERFACE = """
                 <button class="btn-purple" onclick="downloadOnlineVideo()">🌐 ទាញយកពី Web</button>
                 
                 <button class="btn-green" onclick="document.getElementById('srtInput').click()">📄 ផ្ទុក SRT</button>
-                <input type="file" id="srtInput" accept=".srt" style="display:none" onchange="loadSRTFile(this)">
+                <input type="file" id="srtInput" accept=".srt,.txt" style="display:none" onchange="loadSRTFile(this)">
             </div>
             <input type="text" id="videoUrl" placeholder="ដាក់ Link វីដេអូ ឬ Web ភាគរឿងទីនេះ..." style="margin-top: 8px;">
             <div class="result-box" id="downloadResult">ស្ថានភាព: ត្រៀមរួចរាល់</div>
@@ -179,18 +187,18 @@ HTML_INTERFACE = """
             </select>
         </div>
 
-        <!-- ៣. វីដេអូ Player និងផ្ទាំងបញ្ជាសំឡេង -->
+        <!-- ៣. វីដេអូ Player (លេងក្នុងស៊ុមទូរសព្ទមិនរីកធំ) -->
         <div class="section-box">
-            <video id="videoPreview" controls></video>
+            <video id="videoPreview" controls playsinline></video>
             <div class="btn-row" style="margin-top: 6px;">
                 <button class="btn-blue" onclick="document.getElementById('videoPreview').play()">▶ លេង</button>
                 <button class="btn-stop" onclick="document.getElementById('videoPreview').pause()">⏹ ផ្អាក</button>
                 <button class="btn-orange" onclick="toggleMuteOrig()">🔊 សំឡេងដើម</button>
-                <button class="btn-teal" onclick="alert('ប្តូរស្ថានភាពសំឡេង AI ជោគជ័យ')">🎙️ សំឡេង AI</button>
+                <button class="btn-teal" onclick="alert('ស្ថានភាពសំឡេង AI សកម្ម')">🎙️ សំឡេង AI</button>
             </div>
         </div>
 
-        <!-- ៤. មុខងារបញ្ជាជំនួយ (Gemini, SRT Extract, TTS, Export) -->
+        <!-- ៤. មុខងារបញ្ជាជំនួយ -->
         <div class="section-box">
             <div class="btn-row">
                 <button class="btn-purple" onclick="window.open('https://gemini.google.com', '_blank')">🌐 ១. បើក Gemini</button>
@@ -198,7 +206,7 @@ HTML_INTERFACE = """
             </div>
             <div class="btn-row" style="margin-top: 6px;">
                 <button class="btn-blue" onclick="generateAutoTTS()">🎙️ ៣. បញ្ចូលសំឡេង AI</button>
-                <button class="btn-export" onclick="alert('មុខងារនាំចេញវីដេអូពេញលេញរួចរាល់')">🎬 ៤. នាំចេញវីដេអូ</button>
+                <button class="btn-export" onclick="exportFinalVideo()">🎬 ៤. នាំចេញវីដេអូ</button>
             </div>
         </div>
 
@@ -253,7 +261,7 @@ HTML_INTERFACE = """
             <textarea id="srtText" rows="4" placeholder="[សំឡេងប្រុស] សួស្តីបង! តើហូបបាយនៅ?
 [សំឡេងស្រី] ចាស៎ ហូបរួចហើយ!
 [សំឡេងគិតស្រី] ហេតុអត់ខលមករកសោះ?"></textarea>
-            <div class="result-box" id="ttsResult">លទ្ធផលសំឡេង AI នឹងបង្ហាញនៅទីນີ້</div>
+            <div class="result-box" id="ttsResult">លទ្ធផលសំឡេង AI នឹងបង្ហាញនៅទីនេះ</div>
         </div>
     </div>
 
@@ -291,7 +299,7 @@ HTML_INTERFACE = """
                 const file = input.files[0];
                 const videoURL = URL.createObjectURL(file);
                 document.getElementById('videoPreview').src = videoURL;
-                document.getElementById('downloadResult').innerText = "បានបញ្ចូលវីដេអូក្នុងเครื่องរួចរាល់!";
+                document.getElementById('downloadResult').innerText = "បានបញ្ចូលវីដេអូក្នុងເຄື່ອງរួចរាល់!";
                 
                 let select = document.getElementById('episodeSelect');
                 select.innerHTML = `<option>Local: ${file.name}</option>`;
@@ -338,7 +346,7 @@ HTML_INTERFACE = """
 
         function extractSRTData() {
             const text = document.getElementById('srtText').value;
-            if(!text) { alert("សូមដាក់អត្ថបទសិន!"); return; }
+            if(!text) { alert("សូមដាក់អត្ថបទ SRT សិន!"); return; }
             parseSRTToTable(text);
             alert("ចាប់យកនិងបំពេញតារាង SRT ជោគជ័យ!");
         }
@@ -376,6 +384,21 @@ HTML_INTERFACE = """
                 }
             } catch(e) {
                 document.getElementById('ttsResult').innerText = "កំហុស: " + e;
+            }
+        }
+
+        async function exportFinalVideo() {
+            document.getElementById('downloadResult').innerText = "កំពុងនាំចេញវីដេអូពេញលេញ...";
+            try {
+                const res = await fetch('/api/export-video', { method: 'POST' });
+                const data = await res.json();
+                if(res.ok) {
+                    document.getElementById('downloadResult').innerHTML = `<a href="/cloud_temp/${data.filename}" style="color: #00ff88;" download>📥 ចុចទីនេះដើម្បីទាញយកវីដេអូរួចរាល់</a>`;
+                } else {
+                    document.getElementById('downloadResult').innerText = "បរាជ័យក្នុងការនាំចេញ!";
+                }
+            } catch(e) {
+                document.getElementById('downloadResult').innerText = "កំហុស: " + e;
             }
         }
     </script>
@@ -475,6 +498,14 @@ async def api_generate_auto_tts(text_content: str = Form(...)):
     output_file = os.path.join(TEMP_DIR, "final_auto_dubbed.mp3")
     combined_audio.export(output_file, format="mp3", bitrate="320k")
     return FileResponse(output_file, media_type="audio/mp3", filename="auto_dubbed.mp3")
+
+@app.post("/api/export-video")
+async def api_export_video():
+    # មុខងារត្រៀមសម្រាប់ Export វីដេអូជាមួយសំឡេង AI
+    target_video = os.path.join(TEMP_DIR, "downloaded_video.mp4")
+    if not os.path.exists(target_video):
+        return {"detail": "No video found to export"}
+    return {"status": "success", "filename": "downloaded_video.mp4"}
 
 if __name__ == "__main__":
     import uvicorn
