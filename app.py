@@ -476,7 +476,12 @@ async def api_generate_auto_tts(text_content: str = Form(...)):
         if not line:
             continue
         
+        # រំលងលេខលំដាប់ SRT និងម៉ោង (ឧ៖ 1 ឬ 00:00:00,000 --> 00:00:02,000)
+        if line.isdigit() or "-->" in line:
+            continue
+        
         voice_code, is_thought = detect_voice_and_thought(line)
+        # លុបចោល Tags ផ្សេងៗដូចជា [សំឡេងប្រុស], [សំឡេងស្រី] មុននឹងយកទៅអាន
         clean_text = re.sub(r"\[.*?\]|\(.*?\)", "", line).strip()
         if not clean_text:
             continue
@@ -492,8 +497,9 @@ async def api_generate_auto_tts(text_content: str = Form(...)):
                     segment = add_reverb_thought_effect(segment)
                 
                 combined_audio += segment + AudioSegment.silent(duration=300)
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"TTS Error: {e}")
+            continue
 
     output_file = os.path.join(TEMP_DIR, "final_auto_dubbed.mp3")
     combined_audio.export(output_file, format="mp3", bitrate="320k")
