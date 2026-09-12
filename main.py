@@ -63,11 +63,28 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
-if os.path.exists(os.path.join(STATIC_DIR, "css")):
-    app.mount("/css", StaticFiles(directory=os.path.join(STATIC_DIR, "css")), name="css")
-if os.path.exists(os.path.join(STATIC_DIR, "js")):
-    app.mount("/js", StaticFiles(directory=os.path.join(STATIC_DIR, "js")), name="js")
+if os.path.exists(STATIC_DIR):
+    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+for css_candidate in [
+    os.path.join(STATIC_DIR, "css"),
+    os.path.join(BASE_DIR, "static", "css"),
+    os.path.join(BASE_DIR, "css"),
+    os.path.join(RESOURCE_DIR, "css")
+]:
+    if os.path.exists(css_candidate):
+        app.mount("/css", StaticFiles(directory=css_candidate), name="css")
+        break
+
+for js_candidate in [
+    os.path.join(STATIC_DIR, "js"),
+    os.path.join(BASE_DIR, "static", "js"),
+    os.path.join(BASE_DIR, "js"),
+    os.path.join(RESOURCE_DIR, "js")
+]:
+    if os.path.exists(js_candidate):
+        app.mount("/js", StaticFiles(directory=js_candidate), name="js")
+        break
 app.mount("/media/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
 app.mount("/media/temp", StaticFiles(directory=TEMP_DIR), name="temp")
 app.mount("/media/downloads", StaticFiles(directory=DOWNLOAD_DIR), name="downloads")
@@ -174,10 +191,18 @@ class ExportHighlightsRequest(BaseModel):
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root():
-    index_file = os.path.join(STATIC_DIR, "index.html")
-    if os.path.exists(index_file):
-        with open(index_file, "r", encoding="utf-8") as f:
-            return f.read()
+    possible_paths = [
+        os.path.join(STATIC_DIR, "index.html"),
+        os.path.join(RESOURCE_DIR, "index.html"),
+        os.path.join(BASE_DIR, "index.html"),
+        os.path.join(BASE_DIR, "static", "index.html"),
+        "index.html",
+        "static/index.html"
+    ]
+    for p in possible_paths:
+        if os.path.exists(p):
+            with open(p, "r", encoding="utf-8") as f:
+                return f.read()
     return "<h1>Smart AI Studio Web - Welcome</h1>"
 
 
