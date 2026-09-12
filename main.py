@@ -1,8 +1,27 @@
 import os
 import sys
+
+# Resource directory (for static assets inside PyInstaller bundle)
+RESOURCE_DIR = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+if RESOURCE_DIR not in sys.path:
+    sys.path.insert(0, RESOURCE_DIR)
+
+# Data directory (for user files, downloads, exports next to .exe or in project)
+if getattr(sys, 'frozen', False):
+    BASE_DIR = os.path.dirname(os.path.abspath(sys.executable))
+else:
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
+
+
 import uuid
 import asyncio
 import json
+import time
+import re
+from typing import Optional, List
 
 if sys.platform == "win32":
     try:
@@ -10,9 +29,7 @@ if sys.platform == "win32":
         sys.stderr.reconfigure(encoding='utf-8')
     except Exception:
         pass
-import time
-import re
-from typing import Optional, List
+
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTasks, Request
 from fastapi.responses import HTMLResponse, FileResponse, StreamingResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -27,11 +44,11 @@ from services.video_service import (
 )
 from services.downloader_service import download_batch_videos, download_single_video, extract_links_from_url
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMP_DIR = os.path.join(BASE_DIR, "temp_dubbing_files")
 DOWNLOAD_DIR = os.path.join(BASE_DIR, "Downloaded_Videos")
 EXPORT_DIR = os.path.join(BASE_DIR, "Exported_Videos")
 UPLOADS_DIR = os.path.join(BASE_DIR, "uploads")
+STATIC_DIR = os.path.join(RESOURCE_DIR, "static")
 
 for d in [TEMP_DIR, DOWNLOAD_DIR, EXPORT_DIR, UPLOADS_DIR]:
     os.makedirs(d, exist_ok=True)
@@ -46,11 +63,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 app.mount("/media/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
 app.mount("/media/temp", StaticFiles(directory=TEMP_DIR), name="temp")
 app.mount("/media/downloads", StaticFiles(directory=DOWNLOAD_DIR), name="downloads")
 app.mount("/media/exports", StaticFiles(directory=EXPORT_DIR), name="exports")
+
 
 # In-memory store for task statuses and SSE events
 active_tasks = {}
@@ -151,11 +169,12 @@ class ExportHighlightsRequest(BaseModel):
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root():
-    index_file = os.path.join(BASE_DIR, "static", "index.html")
+    index_file = os.path.join(STATIC_DIR, "index.html")
     if os.path.exists(index_file):
         with open(index_file, "r", encoding="utf-8") as f:
             return f.read()
     return "<h1>Smart AI Studio Web - Welcome</h1>"
+
 
 
 @app.get("/api/download-file")

@@ -1,0 +1,7 @@
+__pycache__
+*.pyc
+uploads/*
+temp_dubbing_files/*
+Downloaded_Videos/*
+Exported_Videos/*
+.git
