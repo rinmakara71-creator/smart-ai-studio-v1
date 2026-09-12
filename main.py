@@ -64,10 +64,15 @@ app.add_middleware(
 )
 
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+if os.path.exists(os.path.join(STATIC_DIR, "css")):
+    app.mount("/css", StaticFiles(directory=os.path.join(STATIC_DIR, "css")), name="css")
+if os.path.exists(os.path.join(STATIC_DIR, "js")):
+    app.mount("/js", StaticFiles(directory=os.path.join(STATIC_DIR, "js")), name="js")
 app.mount("/media/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
 app.mount("/media/temp", StaticFiles(directory=TEMP_DIR), name="temp")
 app.mount("/media/downloads", StaticFiles(directory=DOWNLOAD_DIR), name="downloads")
 app.mount("/media/exports", StaticFiles(directory=EXPORT_DIR), name="exports")
+
 
 
 # In-memory store for task statuses and SSE events
