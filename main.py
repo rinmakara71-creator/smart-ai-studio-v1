@@ -1,4 +1,4 @@
-# Smart AI Studio Web - Unified Self-Contained Server
+# Smart AI Studio Web - Unified High-Speed Server
 import os
 import sys
 import uuid
@@ -19,7 +19,6 @@ if sys.platform == "win32":
     except Exception:
         pass
 
-# Ensure paths
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 if CURRENT_DIR not in sys.path:
     sys.path.insert(0, CURRENT_DIR)
@@ -158,7 +157,10 @@ def time_to_seconds(t_str: str) -> float:
     elif len(parts) == 2:
         m, s = parts
         return float(m) * 60 + float(s)
-    return float(t_str)
+    try:
+        return float(t_str)
+    except Exception:
+        return 0.0
 
 def seconds_to_time(sec: float) -> str:
     h = int(sec // 3600)
@@ -195,14 +197,15 @@ def parse_srt_content(raw_text: str) -> list:
             is_thought = "thought" in gender_mode
 
             subtitles.append({
-                "index": idx + 1,
+                "index": idx,
                 "start": start_str,
                 "end": end_str,
                 "start_sec": start_sec,
                 "end_sec": end_sec,
                 "text": content,
                 "voice": voice,
-                "is_thought": is_thought
+                "is_thought": is_thought,
+                "audio_url": None
             })
     else:
         lines = [line.strip() for line in raw_text.splitlines() if line.strip()]
@@ -213,14 +216,15 @@ def parse_srt_content(raw_text: str) -> list:
             start_sec = idx * 4.0
             end_sec = (idx + 1) * 4.0
             subtitles.append({
-                "index": idx + 1,
+                "index": idx,
                 "start": seconds_to_time(start_sec),
                 "end": seconds_to_time(end_sec),
                 "start_sec": start_sec,
                 "end_sec": end_sec,
                 "text": line,
                 "voice": voice,
-                "is_thought": is_thought
+                "is_thought": is_thought,
+                "audio_url": None
             })
 
     return subtitles
@@ -253,7 +257,7 @@ async def recap_with_gemini(text_or_prompt: str, api_key: str = None) -> str:
 
 
 # ==============================================================================
-# 2. AUDIO & TTS HELPER FUNCTIONS
+# 2. AUDIO & TTS HELPER FUNCTIONS (ULTRA FAST)
 # ==============================================================================
 def temp_path(filename: str) -> str:
     return os.path.join(TEMP_DIR, filename)
@@ -306,18 +310,24 @@ async def generate_single_tts(item: dict, session_id: str = "default") -> bool:
     srt_duration = max(0.5, end_sec - start_sec)
 
     if not clean_tts_text.strip():
-        return False
+        clean_tts_text = "..."
 
     raw_tts_file = temp_path(f"raw_voice_{session_id}_{real_idx}.mp3")
     final_file = temp_path(f"temp_voice_{session_id}_{real_idx}.mp3")
 
-    for attempt in range(3):
+    for attempt in range(2):
         try:
             communicate = edge_tts.Communicate(clean_tts_text, voice_code)
             await communicate.save(raw_tts_file)
 
             if os.path.exists(raw_tts_file) and os.path.getsize(raw_tts_file) > 0:
-                sound = AudioSegment.from_file(raw_tts_file) if AudioSegment else None
+                sound = None
+                try:
+                    if AudioSegment:
+                        sound = AudioSegment.from_file(raw_tts_file)
+                except Exception:
+                    pass
+
                 tts_duration = len(sound) / 1000.0 if sound else srt_duration
 
                 if tts_duration > 0 and srt_duration > 0:
@@ -329,18 +339,20 @@ async def generate_single_tts(item: dict, session_id: str = "default") -> bool:
                 if not os.path.exists(final_file) or os.path.getsize(final_file) == 0:
                     shutil.copy(raw_tts_file, final_file)
 
-                if AudioSegment and os.path.exists(final_file):
-                    sound_final = AudioSegment.from_file(final_file)
-                    if has_thought:
-                        sound_final = add_reverb_thought_effect(sound_final)
-                    else:
-                        sound_final = enhance_voice_clarity(sound_final)
-
-                    sound_final.export(final_file, format="mp3", bitrate="320k")
+                try:
+                    if AudioSegment and os.path.exists(final_file):
+                        sound_final = AudioSegment.from_file(final_file)
+                        if has_thought:
+                            sound_final = add_reverb_thought_effect(sound_final)
+                        else:
+                            sound_final = enhance_voice_clarity(sound_final)
+                        sound_final.export(final_file, format="mp3", bitrate="192k")
+                except Exception:
+                    pass
 
                 return True
         except Exception as e:
-            await asyncio.sleep(0.5 * (attempt + 1))
+            await asyncio.sleep(0.3 * (attempt + 1))
 
     return False
 
@@ -444,7 +456,7 @@ def download_single_video(url: str, progress_callback=None) -> str:
 
 
 # ==============================================================================
-# 4. VIDEO & FFMPEG RENDERING FUNCTIONS
+# 4. VIDEO & FFMPEG RENDERING FUNCTIONS (FASTEST)
 # ==============================================================================
 def get_video_dimension_and_duration(video_path: str):
     if not os.path.exists(video_path):
@@ -629,7 +641,7 @@ def export_dubbed_video(
 
     tts_chunks = []
     for sub in subtitles:
-        idx = sub.get("index", 1)
+        idx = sub.get("index", 0)
         s_sec = sub.get("start_sec", time_to_seconds(sub.get("start", "00:00:00,000")))
         final_tts_file = temp_path(f"temp_voice_{session_id}_{idx}.mp3")
         if os.path.exists(final_tts_file) and os.path.getsize(final_tts_file) > 0:
@@ -642,9 +654,12 @@ def export_dubbed_video(
         full_audio_dur_ms = int((dur_sec / speed_factor) * 1000) + 2000
         combined_tts = AudioSegment.silent(duration=full_audio_dur_ms, frame_rate=48000)
         for start_sec, tts_file in tts_chunks:
-            seg = AudioSegment.from_file(tts_file).set_frame_rate(48000).set_channels(2)
-            pos_ms = int(start_sec * 1000)
-            combined_tts = combined_tts.overlay(seg, position=pos_ms)
+            try:
+                seg = AudioSegment.from_file(tts_file).set_frame_rate(48000).set_channels(2)
+                pos_ms = int(start_sec * 1000)
+                combined_tts = combined_tts.overlay(seg, position=pos_ms)
+            except Exception:
+                pass
 
         merged_tts_wav = temp_path(f"combined_tts_{session_id}_{int(time.time())}.wav")
         combined_tts.export(merged_tts_wav, format="wav")
@@ -946,7 +961,7 @@ def merge_videos(video_files: list, output_path: str, progress_callback=None) ->
 
 
 # ==============================================================================
-# 5. FASTAPI APPLICATION SETUP
+# 5. FASTAPI APPLICATION SETUP & HIGH-SPEED ENDPOINTS
 # ==============================================================================
 app = FastAPI(title="Smart AI Studio Web", description="Khmer AI Video Dubbing & Subtitling Studio")
 
@@ -964,7 +979,6 @@ app.mount("/exports", StaticFiles(directory=EXPORT_DIR), name="exports")
 app.mount("/temp", StaticFiles(directory=TEMP_DIR), name="temp")
 app.mount("/downloads", StaticFiles(directory=DOWNLOAD_DIR), name="downloads")
 
-# Fallback mounts for CSS/JS
 css_dir = os.path.join(STATIC_DIR, "css") if os.path.exists(os.path.join(STATIC_DIR, "css")) else os.path.join(RESOURCE_DIR, "css")
 js_dir = os.path.join(STATIC_DIR, "js") if os.path.exists(os.path.join(STATIC_DIR, "js")) else os.path.join(RESOURCE_DIR, "js")
 if os.path.exists(css_dir):
@@ -1050,44 +1064,61 @@ async def recap_gemini_endpoint(request: Request):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/api/generate-single-tts")
 @app.post("/api/generate-tts-single")
-async def generate_tts_single(request: Request):
+async def generate_tts_single_endpoint(request: Request):
     data = await request.json()
     item = data.get("item", {})
     session_id = data.get("session_id", "default")
-    idx = item.get("index", 1)
+    idx = item.get("index", 0)
     ok = await generate_single_tts(item, session_id=session_id)
     if ok:
         filename = f"temp_voice_{session_id}_{idx}.mp3"
         return {"success": True, "audio_url": f"/temp/{filename}?t={int(time.time()*1000)}"}
     raise HTTPException(status_code=500, detail="TTS Generation Failed")
 
+@app.post("/api/generate-batch-tts")
 @app.post("/api/generate-tts-batch")
 async def generate_tts_batch_endpoint(request: Request):
     data = await request.json()
-    subtitles = data.get("subtitles", [])
+    subtitles = data.get("items") or data.get("subtitles") or []
     session_id = data.get("session_id", "default")
     task_id = str(uuid.uuid4())
 
     active_tasks[task_id] = {
         "status": "processing",
         "progress": 0,
-        "message": "ចាប់ផ្តើមបង្កើតសំឡេង AI...",
+        "message": "ចាប់ផ្តើមបង្កើតសំឡេង AI (ល្បឿនលឿន)...",
         "completed": False,
         "results": []
     }
 
     async def run_batch():
         total = len(subtitles)
-        results = []
-        for i, sub in enumerate(subtitles):
-            idx = sub.get("index", i + 1)
-            active_tasks[task_id]["progress"] = int((i / total) * 100)
-            active_tasks[task_id]["message"] = f"កំពុងបង្កើតសំឡេង AI ជួរទី {idx}/{total}..."
-            ok = await generate_single_tts(sub, session_id=session_id)
-            audio_url = f"/temp/temp_voice_{session_id}_{idx}.mp3?t={int(time.time()*1000)}" if ok else None
-            results.append({"index": idx, "success": ok, "audio_url": audio_url})
-            await asyncio.sleep(0.01)
+        if total == 0:
+            active_tasks[task_id]["completed"] = True
+            active_tasks[task_id]["progress"] = 100
+            active_tasks[task_id]["message"] = "ពុំមាន Subtitle ត្រូវបង្កើតសំឡេងឡើយ!"
+            return
+
+        completed_count = 0
+        results = [None] * total
+        sem = asyncio.Semaphore(10)
+
+        async def worker(i, sub):
+            nonlocal completed_count
+            async with sem:
+                real_idx = sub.get("index", i)
+                ok = await generate_single_tts(sub, session_id=session_id)
+                audio_url = f"/temp/temp_voice_{session_id}_{real_idx}.mp3?t={int(time.time()*1000)}" if ok else None
+                results[i] = {"index": real_idx, "success": ok, "audio_url": audio_url}
+                completed_count += 1
+                prog = min(99, int((completed_count / total) * 100))
+                active_tasks[task_id]["progress"] = prog
+                active_tasks[task_id]["message"] = f"កំពុងបង្កើតសំឡេង AI ({completed_count}/{total}) {prog}%..."
+
+        tasks = [worker(i, sub) for i, sub in enumerate(subtitles)]
+        await asyncio.gather(*tasks)
 
         active_tasks[task_id]["progress"] = 100
         active_tasks[task_id]["message"] = f"បង្កើតសំឡេង AI ជោគជ័យទាំងអស់ {total} ជួរ!"
@@ -1363,7 +1394,7 @@ async def task_events(task_id: str, request: Request):
                 yield f"data: {json.dumps(task, ensure_ascii=False)}\n\n"
                 if task.get("completed", False):
                     break
-            await asyncio.sleep(0.5)
+            await asyncio.sleep(0.3)
     return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 if __name__ == "__main__":
