@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart AI Studio Web - កម្មវិធីបញ្ចូលសំឡេង AI & កាត់តវីដេអូ</title>
+    <link rel="stylesheet" href="css/style.css?v=3.0">
+</head>
+
+
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="logo-area">
+            <div class="logo-icon">🎬</div>
+            <div class="app-title">Smart AI Studio Web v1.0</div>
+        </div>
+        <div class="header-status" id="header-status-text">
+            <span>💡 គន្លឹះ៖ ចុច Drag ឬ Mouse Wheel លើ Canvas ដើម្បីកែទំហំ Title, Subtitle, Logo & Blur</span>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="main-wrapper">
+
+        <!-- LEFT PANEL: Video Player & Episode Manager -->
+        <div class="panel">
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <input type="file" id="video-file-input" accept="video/*" style="display: none;">
+                <button class="btn btn-blue" id="btn-browse-video">📁 បញ្ចូលវីដេអូ</button>
+                <button class="btn btn-teal" id="btn-modal-single-dl">📥 ដោនឡូតតែមួយ</button>
+                <button class="btn btn-purple" id="btn-modal-download">🌐 ដោនឡូតរឿងភាគ</button>
+                <input type="file" id="srt-file-input" accept=".srt" style="display: none;">
+                <button class="btn btn-green" id="btn-browse-srt">📄 SRT</button>
+                <button class="btn btn-orange" id="btn-modal-split">✂️ កាត់ជាកង់ៗ</button>
+            </div>
+
+            <!-- Series Episode Dropdown -->
+            <div class="series-select-box">
+                <label>🎬 ជ្រើសរើសភាគរឿង៖</label>
+                <select id="select-episode" style="flex: 1;">
+                    <option value="">-- ពុំទាន់មានវីដេអូ --</option>
+                </select>
+            </div>
+
+            <!-- Video Player & Canvas Interactive Overlay -->
+            <div class="video-canvas-container" id="canvas-container">
+                <video id="main-video" playsinline crossOrigin="anonymous"></video>
+                <canvas id="overlay-canvas"></canvas>
+            </div>
+
+            <!-- Player Controls -->
+            <div class="player-controls">
+                <div class="slider-row">
+                    <input type="range" id="video-seek-slider" min="0" max="100" value="0" step="0.1">
+                    <span class="time-display" id="time-display">00:00 / 00:00</span>
+                </div>
+                <div class="playback-buttons">
+                    <button class="btn btn-blue" id="btn-play-pause">▶ លេង</button>
+                    <button class="btn btn-stop" id="btn-stop">⏹ បញ្ឈប់</button>
+                    <button class="btn btn-orange" id="btn-mute-orig">🔊 សំឡេងដើម</button>
+                    <button class="btn btn-teal" id="btn-mute-tts">🎙️ សំឡេង AI</button>
+                </div>
+            </div>
+
+            <!-- Progress Bar & Timer Status -->
+            <div style="display: flex; flex-direction: column; gap: 4px; background: rgba(10, 14, 22, 0.7); padding: 8px; border-radius: 8px; border: 1px solid rgba(0, 242, 254, 0.15);">
+                <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--accent-cyan);">
+                    <span id="task-status-label">រួចរាល់</span>
+                    <span id="task-timer-label" style="color: var(--accent-gold); font-weight: bold; font-family: monospace;">⏱️ 00:00:00</span>
+                    <span id="task-progress-percent">0%</span>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar-fill" id="progress-bar-fill"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: AI Workflow, Overlays & Subtitles -->
+        <div class="panel">
+            
+            <!-- Top Workflow Actions -->
+            <div class="top-action-bar">
+                <button class="btn btn-purple" id="btn-modal-recap">🎬 ១. សម្រាយរឿង & Highlight Cut</button>
+                <button class="btn btn-green" id="btn-modal-gemini">🤖 ២. Gemini AI Subtitle</button>
+                <button class="btn btn-blue" id="btn-batch-tts">🎙️ ៣. បញ្ចូលសំឡេង AI ទាំងអស់</button>
+                <button class="btn btn-export" id="btn-export-video">🎬 ៤. នាំចេញវីដេអូ (Export)</button>
+                <button class="btn btn-purple" id="btn-merge-all">🎞️ ៥. Merge វីដេអូ</button>
+            </div>
+
+            <!-- Overlay Configuration Box (Title, Subtitle, Logo, Circle Blur, Anti-Copyright) -->
+            <div class="overlay-options-card">
+                
+                <!-- Row 1: Title -->
+                <div class="option-row">
+                    <label style="color: var(--accent-gold);">🏷️ ចំណងជើង:</label>
+                    <input type="text" id="input-title-text" placeholder="វាយបញ្ចូលចំណងជើងវីដេអូ..." style="flex: 1;">
+                    
+                    <select id="select-title-font">
+                        <option value="Battambang">Battambang</option>
+                        <option value="Kantumruy Pro">Kantumruy Pro</option>
+                    </select>
+
+                    <input type="number" id="input-title-size" value="26" min="12" max="100" style="width: 50px;">
+                    
+                    <label>ពណ៌:</label>
+                    <input type="color" id="input-title-color" value="#FFEA00" style="width: 32px; height: 24px; border: none; cursor: pointer;">
+                </div>
+
+                <!-- Row 2: Subtitle & Logo -->
+                <div class="option-row">
+                    <label style="color: var(--accent-green); display: inline-flex; align-items: center; gap: 4px;">
+                        <input type="checkbox" id="chk-show-subtitles" checked> 👁️ Subtitle
+                    </label>
+
+                    <select id="select-sub-font">
+                        <option value="Battambang">Battambang</option>
+                        <option value="Kantumruy Pro">Kantumruy Pro</option>
+                    </select>
+                    
+                    <input type="number" id="input-sub-size" value="18" min="10" max="60" style="width: 50px;">
+                    
+                    <label>ពណ៌:</label>
+                    <input type="color" id="input-sub-color" value="#FFFFFF" style="width: 32px; height: 24px; border: none; cursor: pointer;">
+
+                    <label style="color: var(--accent-cyan); margin-left: 10px;">🖼️ Logo:</label>
+                    <input type="file" id="logo-file-input" accept="image/*" style="display: none;">
+                    <button class="btn btn-teal" id="btn-browse-logo" style="padding: 4px 8px; font-size: 11px;">📁 ជ្រើស Logo</button>
+                    <span id="label-logo-name" style="font-size: 11px; color: #94a3b8;">គ្មាន Logo</span>
+                </div>
+
+                <!-- Row 3: Circle / Ellipse Blur -->
+                <div class="option-row">
+                    <label style="color: var(--accent-cyan); display: inline-flex; align-items: center; gap: 4px;">
+                        <input type="checkbox" id="chk-blur"> ⚪ បើក Blur រាងមូល (Circle/Ellipse)
+                    </label>
+
+                    <label style="color: var(--accent-gold); margin-left: 10px;">កម្រិតព្រាល:</label>
+                    <input type="range" id="slider-blur-strength" min="5" max="60" value="25" style="width: 80px;">
+                    <span id="label-blur-strength-val" style="font-size: 11px; color: var(--accent-gold);">25px</span>
+
+                    <label style="margin-left: 10px;">Tint ពណ៌:</label>
+                    <input type="color" id="input-blur-tint" value="#FFFFFF" style="width: 30px; height: 24px; border: none; cursor: pointer;">
+
+                    <label>កម្រិត Tint:</label>
+                    <input type="range" id="slider-blur-opacity" min="0" max="100" value="0" style="width: 80px;">
+                    <span id="label-blur-opacity-val" style="font-size: 11px; color: var(--accent-gold);">0%</span>
+                </div>
+
+                <!-- Row 4: Anti-Copyright Bypass Filters -->
+                <div class="option-row">
+                    <label style="color: var(--accent-pink);">🛡️ Bypass Filters:</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" id="chk-anti-detect" checked> បើកទាំងអស់</label>
+                        <label><input type="checkbox" id="chk-flip" checked> Flip ឆ្វេង-ស្តាំ</label>
+                        <label><input type="checkbox" id="chk-crop" checked> Crop/Zoom 4%</label>
+                        <label><input type="checkbox" id="chk-color" checked> កែពណ៌/Contrast</label>
+                        <label><input type="checkbox" id="chk-speed" checked> បង្កើនល្បឿន 3%</label>
+                    </div>
+                </div>
+
+                <!-- Row 5: Export Settings & Background Volume -->
+                <div class="option-row" style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 6px;">
+                    <label style="color: var(--accent-cyan);">🎶 ភ្លេងដើម (បិទសំឡេងនិយាយ):</label>
+                    <input type="range" id="slider-bg-vol" min="0" max="100" value="25" style="width: 90px;">
+                    <span id="label-bg-vol-val" style="font-size: 11px; color: var(--accent-gold); min-width: 35px;">25%</span>
+
+                    <label style="margin-left: 10px;">🖥️ គុណភាព:</label>
+                    <select id="select-resolution">
+                        <option value="720p (HD)">720p (HD)</option>
+                        <option value="1080p (Full HD)" selected>1080p (Full HD)</option>
+                        <option value="2K (1440p)">2K (1440p)</option>
+                        <option value="4K (2160p UHD)">4K (2160p UHD)</option>
+                        <option value="Original">Original</option>
+                    </select>
+
+                    <label style="margin-left: 10px;">📐 ទម្រង់ (Frame):</label>
+                    <select id="select-aspect-ratio">
+                        <option value="16:9 (YouTube/Landscape)" selected>16:9 (Landscape)</option>
+                        <option value="9:16 (TikTok/Reels - Blur Background)">9:16 (TikTok - Blur Background ពេញលេញ)</option>
+                        <option value="9:16 (TikTok/Reels - Crop Fit)">9:16 (TikTok - Crop Fit)</option>
+                        <option value="Original">Original</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Subtitle Data Table -->
+            <div class="table-container">
+                <table id="subtitles-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;">#</th>
+                            <th style="width: 100px;">ចាប់ផ្តើម</th>
+                            <th style="width: 100px;">បញ្ឈប់</th>
+                            <th>អត្ថបទ Subtitle</th>
+                            <th style="width: 160px;">ប្រភេទសំឡេង</th>
+                            <th style="width: 140px; text-align: center;">ស្ថានភាពសំឡេង</th>
+                        </tr>
+                    </thead>
+                    <tbody id="subtitles-tbody">
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: #64748b; padding: 20px;">ពុំទាន់មានទិន្នន័យ Subtitle ឡើយ។ សូមចុចប៊ូតុង "📄 SRT" ឬ "🤖 Gemini AI" ដើម្បីបញ្ចូល។</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Single Video Download -->
+    <div class="modal-overlay" id="modal-single-download">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>📥 ទាញយកវីដេអូតែមួយ (Single Video)</h3>
+                <button class="btn btn-stop" id="btn-close-modal-single-dl" style="padding: 2px 8px;">✕</button>
+            </div>
+            <p style="font-size: 11.5px; color: var(--accent-cyan);">បិទភ្ជាប់ Web URL នៃវីដេអូដែលចង់ទាញយក៖</p>
+            <input type="text" id="txt-single-download-url" placeholder="https://..." style="width: 100%; padding: 8px;">
+            <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                <button class="btn btn-stop" id="btn-cancel-single-dl">បោះបង់</button>
+                <button class="btn btn-teal" id="btn-start-single-dl">📥 ទាញយកឥឡូវនេះ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Scrape & Download Series -->
+    <div class="modal-overlay" id="modal-download">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>🌐 ទាញយកវីដេអូរឿងភាគ (ភាគ ១ ដល់ចប់)</h3>
+                <button class="btn btn-stop" id="btn-close-modal-download" style="padding: 2px 8px;">✕</button>
+            </div>
+            <p style="font-size: 11.5px; color: var(--accent-cyan);">បិទភ្ជាប់ Web URL នៃរឿង ឬ Playlist Links (មួយបន្ទាត់មួយ Link)៖</p>
+            <textarea id="txt-download-urls" rows="6" placeholder="ឧទាហរណ៍៖ https://..."></textarea>
+            <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                <button class="btn btn-stop" id="btn-cancel-download">បោះបង់</button>
+                <button class="btn btn-purple" id="btn-start-download">🔍 ចាប់ផ្តើមទាញយក Auto</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Video Splitter (Chunk by Chunk) -->
+    <div class="modal-overlay" id="modal-split">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>✂️ កាត់វីដេអូវែងជាកង់ៗ (Video Splitter)</h3>
+                <button class="btn btn-stop" id="btn-close-modal-split" style="padding: 2px 8px;">✕</button>
+            </div>
+            <p style="font-size: 11.5px; color: var(--accent-cyan);">ជ្រើសរើសប្រវែងនាទី ឬវិនាទីក្នុងមួយកង់ (Part)៖</p>
+            
+            <div class="option-row">
+                <label>ប្រវែងកាត់:</label>
+                <select id="select-split-preset" style="flex: 1;">
+                    <option value="60">១ នាទី (60s) - ស្តង់ដារ TikTok/Shorts</option>
+                    <option value="180">៣ នាទី (180s) - ស្តង់ដារ Facebook Reels</option>
+                    <option value="300">៥ នាទី (300s)</option>
+                    <option value="600">១០ នាទី (600s)</option>
+                    <option value="custom">កំណត់វិនាទីដោយខ្លួនឯង...</option>
+                </select>
+                <input type="number" id="txt-custom-split-sec" value="60" min="5" style="width: 70px; display: none;">
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                <button class="btn btn-stop" id="btn-cancel-split">បោះបង់</button>
+                <button class="btn btn-orange" id="btn-start-split">✂️ ចាប់ផ្តើមកាត់ជាកង់ៗ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: AI Movie Recap & Highlight Cutter -->
+    <div class="modal-overlay" id="modal-recap">
+        <div class="modal-card" style="width: 720px; max-width: 95vw;">
+            <div class="modal-header">
+                <h3>🎬 AI សម្រាយសាច់រឿង & កាត់ Highlight (ច្បាប់ទាំង ៥)</h3>
+                <button class="btn btn-stop" id="btn-close-modal-recap" style="padding: 2px 8px;">✕</button>
+            </div>
+            <div style="background: rgba(0, 242, 254, 0.08); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(0, 242, 254, 0.2); margin-bottom: 8px; font-size: 11.5px; color: var(--accent-cyan);">
+                💡 <b>របៀបប្រើ (ងាយស្រួល ៣ ជំហាន)៖</b><br>
+                <b>ជំហានទី ១៖</b> ចុច <b>"📋 ១. ចម្លង Prompt ទាំងអស់"</b> រួចចុច <b>"🌐 ២. បើក Gemini"</b><br>
+                <b>ជំហានទី ២៖</b> ក្នុង Gemini ចុច <b>Paste (បិទភ្ជាប់ / Ctrl + V)</b> ដើម្បីឱ្យ Gemini សម្រាយរឿង និងផ្តល់ Timecode Highlight<br>
+                <b>ជំហានទី ៣៖</b> Copy SRT ពី Gemini មក Paste ក្នុងប្រអប់ខាងក្រោម រួចចុច <b>"🎬 ៣. កាត់ & ច្របាច់ Highlight"</b>
+            </div>
+
+            <!-- Prompt Preview Box -->
+            <div style="margin-bottom: 8px;">
+                <label style="font-size: 11.5px; font-weight: bold; color: var(--accent-gold); display: block; margin-bottom: 3px;">
+                    📜 ខ្លឹមសារ Prompt សម្រាយរឿង (ច្បាប់ទាំង ៥)៖
+                </label>
+                <textarea id="txt-recap-prompt-preview" rows="4" readonly style="font-size: 11px; background: rgba(0,0,0,0.4); color: #94a3b8; line-height: 1.4;"></textarea>
+            </div>
+
+            <label style="font-size: 12px; font-weight: bold; color: var(--accent-cyan); display: block; margin-bottom: 4px;">
+                📝 ប្រអប់បិទភ្ជាប់ SRT Highlight ដែលទទួលបានពី Gemini៖
+            </label>
+            <textarea id="txt-recap-input" rows="6" placeholder="បិទភ្ជាប់អត្ថបទ SRT Highlight ពី Gemini នៅទីនេះ..."></textarea>
+            
+            <div style="display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap;">
+                <button class="btn btn-blue" id="btn-copy-recap-prompt">📋 ១. ចម្លង Prompt ទាំងអស់</button>
+                <a href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer" class="btn btn-purple" id="btn-auto-open-gemini-recap" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">🌐 ២. បើក Gemini (ផ្ទាំងថ្មី)</a>
+                <button class="btn btn-green" id="btn-load-recap-srt">📄 ប្រើ SRT នេះជា Subtitle</button>
+                <button class="btn btn-export" id="btn-extract-highlights">🎬 ៣. កាត់ & ច្របាច់ Highlight</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Gemini AI Translation -->
+    <div class="modal-overlay" id="modal-gemini">
+        <div class="modal-card" style="width: 720px; max-width: 95vw;">
+            <div class="modal-header">
+                <h3>🤖 Gemini AI Subtitle & Dubbing (ច្បាប់ទាំង ៤)</h3>
+                <button class="btn btn-stop" id="btn-close-modal-gemini" style="padding: 2px 8px;">✕</button>
+            </div>
+            <div style="background: rgba(0, 242, 254, 0.08); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(0, 242, 254, 0.2); margin-bottom: 8px; font-size: 11.5px; color: var(--accent-cyan);">
+                💡 <b>របៀបបកប្រែ Subtitle & Dubbing (ងាយស្រួល ៣ ជំហាន)៖</b><br>
+                <b>ជំហានទី ១៖</b> ចុច <b>"📋 ១. ចម្លង Prompt ទាំងអស់"</b> រួចចុច <b>"🌐 ២. បើក Gemini"</b><br>
+                <b>ជំហានទី ២៖</b> ក្នុង Gemini ចុច <b>Paste (បិទភ្ជាប់ / Ctrl + V)</b> ដើម្បីឱ្យ Gemini បកប្រែជាភាសាខ្មែរតាមសំឡេងតួអង្គ<br>
+                <b>ជំហានទី ៣៖</b> Copy SRT ពី Gemini មក Paste ក្នុងប្រអប់ខាងក្រោម រួចចុច <b>"📄 ៣. ប្រើប្រាស់ SRT នេះភ្លាមៗ"</b>
+            </div>
+
+            <!-- Prompt Preview Box -->
+            <div style="margin-bottom: 8px;">
+                <label style="font-size: 11.5px; font-weight: bold; color: var(--accent-gold); display: block; margin-bottom: 3px;">
+                    📜 ខ្លឹមសារ Prompt បកប្រែ Subtitle & Dubbing (ច្បាប់ទាំង ៤)៖
+                </label>
+                <textarea id="txt-sub-prompt-preview" rows="4" readonly style="font-size: 11px; background: rgba(0,0,0,0.4); color: #94a3b8; line-height: 1.4;"></textarea>
+            </div>
+
+            <label style="font-size: 12px; font-weight: bold; color: var(--accent-cyan); display: block; margin-bottom: 4px;">
+                📝 ប្រអប់បិទភ្ជាប់ SRT ជាភាសាខ្មែរដែលទទួលបានពី Gemini៖
+            </label>
+            <textarea id="txt-gemini-input" rows="6" placeholder="1&#10;00:00:01,000 --> 00:00:04,000&#10;[សំឡេងប្រុស] សួស្តី..."></textarea>
+            
+            <div style="display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap;">
+                <button class="btn btn-blue" id="btn-copy-sub-prompt">📋 ១. ចម្លង Prompt ទាំងអស់</button>
+                <a href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer" class="btn btn-purple" id="btn-auto-open-gemini-sub" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">🌐 ២. បើក Gemini (ផ្ទាំងថ្មី)</a>
+                <button class="btn btn-green" id="btn-parse-direct-srt">📄 ៣. ប្រើប្រាស់ SRT នេះភ្លាមៗ</button>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- MODAL: Export Result & Direct Download to Mobile Files -->
+    <div class="modal-overlay" id="modal-export-result">
+        <div class="modal-card" style="max-width: 520px; text-align: center;">
+            <div class="modal-header">
+                <h3 style="color: var(--accent-green);">🎉 នាំចេញវីដេអូជោគជ័យ!</h3>
+                <button class="btn btn-stop" id="btn-close-modal-export" style="padding: 2px 8px;">✕</button>
+            </div>
+            
+            <!-- Video Preview -->
+            <div style="background: #000; border-radius: 8px; overflow: hidden; max-height: 280px; display: flex; justify-content: center;">
+                <video id="export-result-video" controls playsinline style="max-height: 280px; width: 100%; object-fit: contain;"></video>
+            </div>
+
+            <div style="background: rgba(0, 242, 254, 0.08); padding: 10px; border-radius: 8px; border: 1px solid rgba(0, 242, 254, 0.2); font-size: 11.5px; color: var(--accent-cyan); text-align: left;">
+                📱 <b>គន្លឹះរក្សាទុកលើ iPhone:</b><br>
+                ចុចប៊ូតុង <b>"📥 ទាញយកចូល Files"</b> ខាងក្រោម រួចចុច <b>Download</b>។ ឬបើកមើលវីដេអូ រួចចុច <b>Share (📤) -> Save Video</b> ដើម្បីរក្សាទុកចូលក្នុង Photos!
+            </div>
+
+            <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+                <a id="link-direct-download" href="#" download class="btn btn-green" style="flex: 1; padding: 10px 14px; font-size: 13px; font-weight: bold; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    📥 ទាញយកចូល Files / Photos
+                </a>
+                <button class="btn btn-blue" id="btn-open-newtab" style="padding: 10px 14px;">
+                    👁️ បើកមើលពេញអេក្រង់
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio Player for TTS Sync -->
+    <audio id="tts-audio-player" style="display: none;"></audio>
+
+    <script src="js/app.js?v=3.0"></script>
+</body>
+</html>
+
+
+
+

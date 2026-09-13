@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: smart-ai-studio-web
+    env: docker
+    plan: free
+    region: singapore
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: 8000
