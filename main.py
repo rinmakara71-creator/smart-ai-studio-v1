@@ -1,4 +1,4 @@
-# Smart AI Studio Web - Unified High-Speed Server
+# Smart AI Studio Web - Robust Ultra-Fast Server
 import os
 import sys
 import uuid
@@ -52,6 +52,9 @@ except ImportError:
 try:
     from pydub import AudioSegment
     from pydub.effects import normalize
+    if AudioSegment:
+        AudioSegment.converter = "ffmpeg"
+        AudioSegment.ffmpeg = "ffmpeg"
 except ImportError:
     AudioSegment = None
     normalize = None
@@ -149,7 +152,7 @@ def detect_gender_from_text(text: str) -> str:
     return "male_normal"
 
 def time_to_seconds(t_str: str) -> float:
-    t_str = t_str.strip().replace(',', '.')
+    t_str = str(t_str).strip().replace(',', '.')
     parts = t_str.split(':')
     if len(parts) == 3:
         h, m, s = parts
@@ -257,7 +260,7 @@ async def recap_with_gemini(text_or_prompt: str, api_key: str = None) -> str:
 
 
 # ==============================================================================
-# 2. AUDIO & TTS HELPER FUNCTIONS (ULTRA FAST)
+# 2. AUDIO & TTS HELPER FUNCTIONS
 # ==============================================================================
 def temp_path(filename: str) -> str:
     return os.path.join(TEMP_DIR, filename)
@@ -265,19 +268,25 @@ def temp_path(filename: str) -> str:
 def enhance_voice_clarity(sound):
     if not sound or not AudioSegment or not normalize:
         return sound
-    sound = sound.set_frame_rate(48000).set_channels(2)
-    normalized = normalize(sound).high_pass_filter(70) + 1.5
-    return normalized.fade_in(10).fade_out(10)
+    try:
+        sound = sound.set_frame_rate(48000).set_channels(2)
+        normalized = normalize(sound).high_pass_filter(70) + 1.5
+        return normalized.fade_in(10).fade_out(10)
+    except Exception:
+        return sound
 
 def add_reverb_thought_effect(sound):
     if not sound or not AudioSegment or not normalize:
         return sound
-    sound = sound.set_frame_rate(48000).set_channels(2)
-    delay_1 = AudioSegment.silent(duration=40) + (sound - 4.0)
-    delay_2 = AudioSegment.silent(duration=90) + (sound - 7.5)
-    delay_3 = AudioSegment.silent(duration=150) + (sound - 11.5)
-    mixed = sound.overlay(delay_1).overlay(delay_2).overlay(delay_3)
-    return normalize(mixed).fade_in(10).fade_out(10)
+    try:
+        sound = sound.set_frame_rate(48000).set_channels(2)
+        delay_1 = AudioSegment.silent(duration=40) + (sound - 4.0)
+        delay_2 = AudioSegment.silent(duration=90) + (sound - 7.5)
+        delay_3 = AudioSegment.silent(duration=150) + (sound - 11.5)
+        mixed = sound.overlay(delay_1).overlay(delay_2).overlay(delay_3)
+        return normalize(mixed).fade_in(10).fade_out(10)
+    except Exception:
+        return sound
 
 def adjust_audio_speed(input_file: str, output_file: str, speed_factor: float):
     safe_speed = max(0.85, min(speed_factor, 1.25))
@@ -456,8 +465,27 @@ def download_single_video(url: str, progress_callback=None) -> str:
 
 
 # ==============================================================================
-# 4. VIDEO & FFMPEG RENDERING FUNCTIONS (FASTEST)
+# 4. VIDEO & FFMPEG RENDERING FUNCTIONS (ROBUST & ULTRA FAST)
 # ==============================================================================
+def check_has_audio(video_path: str) -> bool:
+    if not os.path.exists(video_path):
+        return False
+    cmd = [
+        "ffprobe", "-v", "error",
+        "-select_streams", "a:0",
+        "-show_entries", "stream=codec_type",
+        "-of", "json",
+        video_path
+    ]
+    try:
+        res = subprocess.run(cmd, capture_output=True, text=True)
+        if res.returncode == 0:
+            data = json.loads(res.stdout)
+            return len(data.get("streams", [])) > 0
+    except Exception:
+        pass
+    return False
+
 def get_video_dimension_and_duration(video_path: str):
     if not os.path.exists(video_path):
         return 1280, 720, 60.0
@@ -622,6 +650,7 @@ def export_dubbed_video(
         raise FileNotFoundError(f"រកមិនឃើញ File វីដេអូ: {video_path}")
 
     orig_w, orig_h, dur_sec = get_video_dimension_and_duration(video_path)
+    has_orig_audio = check_has_audio(video_path)
     aspect_ratio = overlay_options.get("aspect_ratio", "original")
 
     if aspect_ratio == "16:9":
@@ -731,28 +760,38 @@ def export_dubbed_video(
     orig_vol = audio_options.get("orig_audio_volume", 0.35)
     mute_orig = audio_options.get("mute_orig", False)
 
-    if merged_tts_wav and os.path.exists(merged_tts_wav):
-        tts_input_idx = len(inputs) // 2
-        inputs.extend(["-i", merged_tts_wav])
-        if not mute_orig:
+    # Audio Stream Graph Handling (Zero Crash Guarantee)
+    if has_orig_audio:
+        if merged_tts_wav and os.path.exists(merged_tts_wav):
+            tts_input_idx = len(inputs) // 2
+            inputs.extend(["-i", merged_tts_wav])
+            if not mute_orig:
+                vol_factor = max(0.0, min(orig_vol, 1.0))
+                a_filters.append(f"[0:a]stereotools=mlev=0.0,volume={vol_factor:.2f}[bg_music]")
+                if anti_detect and speed_shift:
+                    a_filters.append(f"[bg_music]atempo={speed_factor}[bg_music_sped]")
+                    a_filters.append(f"[bg_music_sped][{tts_input_idx}:a]amix=inputs=2:duration=longest:weights=1 2.5[{curr_a_tag}]")
+                else:
+                    a_filters.append(f"[bg_music][{tts_input_idx}:a]amix=inputs=2:duration=longest:weights=1 2.5[{curr_a_tag}]")
+            else:
+                a_filters.append(f"[{tts_input_idx}:a]anull[{curr_a_tag}]")
+        elif not mute_orig:
             vol_factor = max(0.0, min(orig_vol, 1.0))
             a_filters.append(f"[0:a]stereotools=mlev=0.0,volume={vol_factor:.2f}[bg_music]")
             if anti_detect and speed_shift:
-                a_filters.append(f"[bg_music]atempo={speed_factor}[bg_music_sped]")
-                a_filters.append(f"[bg_music_sped][{tts_input_idx}:a]amix=inputs=2:duration=longest:weights=1 2.5[{curr_a_tag}]")
+                a_filters.append(f"[bg_music]atempo={speed_factor}[{curr_a_tag}]")
             else:
-                a_filters.append(f"[bg_music][{tts_input_idx}:a]amix=inputs=2:duration=longest:weights=1 2.5[{curr_a_tag}]")
+                a_filters.append(f"[bg_music]anull[{curr_a_tag}]")
         else:
-            a_filters.append(f"[{tts_input_idx}:a]anull[{curr_a_tag}]")
-    elif not mute_orig:
-        vol_factor = max(0.0, min(orig_vol, 1.0))
-        a_filters.append(f"[0:a]stereotools=mlev=0.0,volume={vol_factor:.2f}[bg_music]")
-        if anti_detect and speed_shift:
-            a_filters.append(f"[bg_music]atempo={speed_factor}[{curr_a_tag}]")
-        else:
-            a_filters.append(f"[bg_music]anull[{curr_a_tag}]")
+            a_filters.append(f"aevalsrc=0:d={dur_sec}[{curr_a_tag}]")
     else:
-        a_filters.append(f"aevalsrc=0:d={dur_sec}[{curr_a_tag}]")
+        # Video has NO native audio stream
+        if merged_tts_wav and os.path.exists(merged_tts_wav):
+            tts_input_idx = len(inputs) // 2
+            inputs.extend(["-i", merged_tts_wav])
+            a_filters.append(f"[{tts_input_idx}:a]anull[{curr_a_tag}]")
+        else:
+            a_filters.append(f"aevalsrc=0:d={dur_sec}[{curr_a_tag}]")
 
     all_filters = v_filters + a_filters
 
@@ -782,7 +821,7 @@ def export_dubbed_video(
     process = subprocess.Popen(
         ffmpeg_export_cmd,
         stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL,
+        stderr=subprocess.PIPE,
         universal_newlines=True,
         encoding="utf-8",
         errors="ignore"
@@ -811,7 +850,8 @@ def export_dubbed_video(
 
     retcode = process.wait()
     if retcode != 0:
-        raise RuntimeError(f"FFmpeg Error (exit code {retcode})")
+        err_out = process.stderr.read() if process.stderr else f"Exit code {retcode}"
+        raise RuntimeError(f"FFmpeg Error ({err_out.strip()})")
 
     if progress_callback:
         progress_callback(100, "នាំចេញវីដេអូជោគជ័យ!")
@@ -961,7 +1001,7 @@ def merge_videos(video_files: list, output_path: str, progress_callback=None) ->
 
 
 # ==============================================================================
-# 5. FASTAPI APPLICATION SETUP & HIGH-SPEED ENDPOINTS
+# 5. FASTAPI APPLICATION SETUP & ENDPOINTS
 # ==============================================================================
 app = FastAPI(title="Smart AI Studio Web", description="Khmer AI Video Dubbing & Subtitling Studio")
 
