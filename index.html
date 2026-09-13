@@ -162,9 +162,9 @@
 
                 <!-- Row 5: Export Settings & Background Volume -->
                 <div class="option-row" style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 6px;">
-                    <label style="color: var(--accent-cyan);">🎶 សំឡេងដើម:</label>
-                    <input type="range" id="slider-bg-vol" min="0" max="100" value="50" style="width: 90px;">
-                    <span id="label-bg-vol-val" style="font-size: 11px; color: var(--accent-gold); min-width: 35px;">50%</span>
+                    <label style="color: var(--accent-cyan);">🎶 ភ្លេងដើម (បិទសំឡេងនិយាយ):</label>
+                    <input type="range" id="slider-bg-vol" min="0" max="100" value="25" style="width: 90px;">
+                    <span id="label-bg-vol-val" style="font-size: 11px; color: var(--accent-gold); min-width: 35px;">25%</span>
 
                     <label style="margin-left: 10px;">🖥️ គុណភាព:</label>
                     <select id="select-resolution">
@@ -270,48 +270,71 @@
 
     <!-- MODAL: AI Movie Recap & Highlight Cutter -->
     <div class="modal-overlay" id="modal-recap">
-        <div class="modal-card" style="width: 700px;">
+        <div class="modal-card" style="width: 720px; max-width: 95vw;">
             <div class="modal-header">
-                <h3>🎬 AI សម្រាយសាច់រឿង & កាត់ Highlight (ឥតគិតថ្លៃ ១០០%)</h3>
+                <h3>🎬 AI សម្រាយសាច់រឿង & កាត់ Highlight (ច្បាប់ទាំង ៥)</h3>
                 <button class="btn btn-stop" id="btn-close-modal-recap" style="padding: 2px 8px;">✕</button>
             </div>
             <div style="background: rgba(0, 242, 254, 0.08); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(0, 242, 254, 0.2); margin-bottom: 8px; font-size: 11.5px; color: var(--accent-cyan);">
-                💡 <b>របៀបប្រើ (មិនបាច់មាន API Key ទេ)៖</b><br>
-                <b>ជំហានទី ១៖</b> បិទភ្ជាប់សាច់រឿងក្នុងប្រអប់ខាងក្រោម រួចចុច <b>"🚀 ចម្លង Prompt & បើក Gemini"</b><br>
-                <b>ជំហានទី ២៖</b> ចុច <b>Paste (បិទភ្ជាប់)</b> ក្នុង Gemini នោះ Gemini នឹងសម្រាយរឿង និងផ្តល់ Timecode Highlight ភ្លាមៗ<br>
-                <b>ជំហានទី ៣៖</b> Copy SRT ពី Gemini មក Paste ក្នុងប្រអប់ខាងក្រោមនេះវិញ រួចចុច <b>"🎬 កាត់ Highlight"</b>
+                💡 <b>របៀបប្រើ (ងាយស្រួល ៣ ជំហាន)៖</b><br>
+                <b>ជំហានទី ១៖</b> ចុច <b>"📋 ១. ចម្លង Prompt ទាំងអស់"</b> រួចចុច <b>"🌐 ២. បើក Gemini"</b><br>
+                <b>ជំហានទី ២៖</b> ក្នុង Gemini ចុច <b>Paste (បិទភ្ជាប់ / Ctrl + V)</b> ដើម្បីឱ្យ Gemini សម្រាយរឿង និងផ្តល់ Timecode Highlight<br>
+                <b>ជំហានទី ៣៖</b> Copy SRT ពី Gemini មក Paste ក្នុងប្រអប់ខាងក្រោម រួចចុច <b>"🎬 ៣. កាត់ & ច្របាច់ Highlight"</b>
             </div>
+
+            <!-- Prompt Preview Box -->
+            <div style="margin-bottom: 8px;">
+                <label style="font-size: 11.5px; font-weight: bold; color: var(--accent-gold); display: block; margin-bottom: 3px;">
+                    📜 ខ្លឹមសារ Prompt សម្រាយរឿង (ច្បាប់ទាំង ៥)៖
+                </label>
+                <textarea id="txt-recap-prompt-preview" rows="4" readonly style="font-size: 11px; background: rgba(0,0,0,0.4); color: #94a3b8; line-height: 1.4;"></textarea>
+            </div>
+
             <label style="font-size: 12px; font-weight: bold; color: var(--accent-cyan); display: block; margin-bottom: 4px;">
-                📝 ប្រអប់បិទភ្ជាប់សាច់រឿង ឬ SRT Highlight (មិនមែន API Key ទេ)៖
+                📝 ប្រអប់បិទភ្ជាប់ SRT Highlight ដែលទទួលបានពី Gemini៖
             </label>
-            <textarea id="txt-recap-input" rows="8" placeholder="បិទភ្ជាប់អត្ថបទសាច់រឿង ឬ SRT Highlight ពី Gemini នៅទីនេះ..."></textarea>
+            <textarea id="txt-recap-input" rows="6" placeholder="បិទភ្ជាប់អត្ថបទ SRT Highlight ពី Gemini នៅទីនេះ..."></textarea>
+            
             <div style="display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap;">
-                <a href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer" class="btn btn-blue" id="btn-auto-open-gemini-recap" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">🚀 ១. ចម្លង Prompt & បើក Gemini</a>
-                <button class="btn btn-green" id="btn-load-recap-srt">📄 ២. ប្រើ SRT នេះជា Subtitle</button>
-                <button class="btn btn-export" id="btn-extract-highlights">🎬 ៣. កាត់ & ច្របាច់ Highlight វីដេអូ</button>
+                <button class="btn btn-blue" id="btn-copy-recap-prompt">📋 ១. ចម្លង Prompt ទាំងអស់</button>
+                <a href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer" class="btn btn-purple" id="btn-auto-open-gemini-recap" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">🌐 ២. បើក Gemini (ផ្ទាំងថ្មី)</a>
+                <button class="btn btn-green" id="btn-load-recap-srt">📄 ប្រើ SRT នេះជា Subtitle</button>
+                <button class="btn btn-export" id="btn-extract-highlights">🎬 ៣. កាត់ & ច្របាច់ Highlight</button>
             </div>
         </div>
     </div>
 
     <!-- MODAL: Gemini AI Translation -->
     <div class="modal-overlay" id="modal-gemini">
-        <div class="modal-card">
+        <div class="modal-card" style="width: 720px; max-width: 95vw;">
             <div class="modal-header">
-                <h3>🤖 Gemini AI Subtitle & Dubbing (ឥតគិតថ្លៃ ១០០%)</h3>
+                <h3>🤖 Gemini AI Subtitle & Dubbing (ច្បាប់ទាំង ៤)</h3>
                 <button class="btn btn-stop" id="btn-close-modal-gemini" style="padding: 2px 8px;">✕</button>
             </div>
             <div style="background: rgba(0, 242, 254, 0.08); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(0, 242, 254, 0.2); margin-bottom: 8px; font-size: 11.5px; color: var(--accent-cyan);">
-                💡 <b>របៀបបកប្រែ Subtitle (មិនបាច់មាន API Key ទេ)៖</b><br>
-                <b>ជំហានទី ១៖</b> បិទភ្ជាប់ Subtitle ដើម រួចចុច <b>"🚀 ចម្លង Prompt & បើក Gemini"</b><br>
-                <b>ជំហានទី ២៖</b> ចុច Paste ក្នុង Gemini ដើម្បីបកប្រែជាភាសាខ្មែរ រួច Copy លទ្ធផលមក Paste ក្នុងប្រអប់នេះវិញ ហើយចុច <b>"📄 ប្រើប្រាស់ SRT នេះភ្លាមៗ"</b>
+                💡 <b>របៀបបកប្រែ Subtitle & Dubbing (ងាយស្រួល ៣ ជំហាន)៖</b><br>
+                <b>ជំហានទី ១៖</b> ចុច <b>"📋 ១. ចម្លង Prompt ទាំងអស់"</b> រួចចុច <b>"🌐 ២. បើក Gemini"</b><br>
+                <b>ជំហានទី ២៖</b> ក្នុង Gemini ចុច <b>Paste (បិទភ្ជាប់ / Ctrl + V)</b> ដើម្បីឱ្យ Gemini បកប្រែជាភាសាខ្មែរតាមសំឡេងតួអង្គ<br>
+                <b>ជំហានទី ៣៖</b> Copy SRT ពី Gemini មក Paste ក្នុងប្រអប់ខាងក្រោម រួចចុច <b>"📄 ៣. ប្រើប្រាស់ SRT នេះភ្លាមៗ"</b>
             </div>
+
+            <!-- Prompt Preview Box -->
+            <div style="margin-bottom: 8px;">
+                <label style="font-size: 11.5px; font-weight: bold; color: var(--accent-gold); display: block; margin-bottom: 3px;">
+                    📜 ខ្លឹមសារ Prompt បកប្រែ Subtitle & Dubbing (ច្បាប់ទាំង ៤)៖
+                </label>
+                <textarea id="txt-sub-prompt-preview" rows="4" readonly style="font-size: 11px; background: rgba(0,0,0,0.4); color: #94a3b8; line-height: 1.4;"></textarea>
+            </div>
+
             <label style="font-size: 12px; font-weight: bold; color: var(--accent-cyan); display: block; margin-bottom: 4px;">
-                📝 ប្រអប់បិទភ្ជាប់ Subtitle / SRT ដើម (មិនមែន API Key ទេ)៖
+                📝 ប្រអប់បិទភ្ជាប់ SRT ជាភាសាខ្មែរដែលទទួលបានពី Gemini៖
             </label>
-            <textarea id="txt-gemini-input" rows="8" placeholder="1&#10;00:00:01,000 --> 00:00:04,000&#10;Hello, welcome to our movie..."></textarea>
+            <textarea id="txt-gemini-input" rows="6" placeholder="1&#10;00:00:01,000 --> 00:00:04,000&#10;[សំឡេងប្រុស] សួស្តី..."></textarea>
+            
             <div style="display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap;">
-                <a href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer" class="btn btn-blue" id="btn-auto-open-gemini-sub" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">🚀 ១. ចម្លង Prompt & បើក Gemini</a>
-                <button class="btn btn-green" id="btn-parse-direct-srt">📄 ២. ប្រើប្រាស់ SRT នេះភ្លាមៗ</button>
+                <button class="btn btn-blue" id="btn-copy-sub-prompt">📋 ១. ចម្លង Prompt ទាំងអស់</button>
+                <a href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer" class="btn btn-purple" id="btn-auto-open-gemini-sub" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">🌐 ២. បើក Gemini (ផ្ទាំងថ្មី)</a>
+                <button class="btn btn-green" id="btn-parse-direct-srt">📄 ៣. ប្រើប្រាស់ SRT នេះភ្លាមៗ</button>
             </div>
         </div>
     </div>
